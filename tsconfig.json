@@ -1,6 +1,7 @@
 {
   "extends": "@vue/tsconfig/tsconfig.json",
   "compilerOptions": {
+    "ignoreDeprecations": "5.0",//加入这句代码即可
     "sourceMap": true,
     "baseUrl": ".",
     "paths": {
@@ -10,7 +11,8 @@
     "types": [
       "@dcloudio/types",
       "@types/wechat-miniprogram",
-      "@uni-helper/uni-app-types"
+      "@uni-helper/uni-app-types",
+      "@uni-helper/uni-ui-types"
     ]
   },
   "vueCompilerOptions": {

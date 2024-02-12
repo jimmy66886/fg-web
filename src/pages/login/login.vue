@@ -1,0 +1,111 @@
+<template>
+  <image src="../../../static/images/icon.png" />
+  <view class="title-box">
+    <view class="title">欢迎登录</view>
+    <view class="register" @tap="toRegister">注册</view>
+  </view>
+
+  <!-- 两个选项,用于切换是手机号登录还是邮箱登录 -->
+  <view class="options">
+    <button :class="{ active: activeButton === 1 }" @tap="codeOption">验证码</button>
+    <button :class="{ active: activeButton === 2 }" @tap="emailOption">密码</button>
+  </view>
+
+  <view v-if="isCode">
+
+    <!-- 验证码登录 -->
+    <view class="input-container">
+      <input class="input-style" type="text" placeholder="请输入邮箱" v-model="email" />
+    </view>
+    <view class="input-container">
+      <input class="input-style" placeholder="请输入验证码" v-model="code" /><button @tap="getCode">获取验证码</button>
+    </view>
+  </view>
+
+  <view v-if="isEmail">
+    <!-- 密码登录 -->
+    <view class="input-container">
+      <input class="input-style" type="text" placeholder="请输入邮箱" v-model="email" />
+    </view>
+    <view class="input-container">
+      <input class="input-style" placeholder="请输入密码" v-model="password" />
+    </view>
+  </view>
+
+  <view class="btn-container">
+    <button class="login-button" type="primary" @tap="login">登录</button>
+  </view>
+</template>
+
+<script lang="ts" setup>
+import useLogin from '@/service/useLogin'
+
+const { getCode, code, password, email, isCode, isEmail, activeButton, codeOption, emailOption, toRegister, login } = useLogin()
+
+</script>
+
+<style scoped>
+.active {
+  background-color: #5DB298;
+  color: #fff !important;
+}
+
+.title-box {
+  display: flex;
+  margin-left: 38px;
+}
+
+.title {
+  font-size: 24px;
+  color: #5DB298;
+  margin-bottom: 20px;
+  margin-right: 210px;
+}
+
+.options {
+  margin-left: 35px;
+}
+
+.options button {
+  margin-bottom: 10px;
+  height: 40px;
+  margin-right: 20px;
+  border-radius: 5px;
+  color: #000000;
+  display: inline-block;
+  line-height: 40px;
+  font-size: 15px;
+}
+
+image {
+  margin-left: 175rpx;
+  width: 400rpx;
+  height: 400rpx;
+}
+
+.input-style {
+  border: 1px solid #5DB298;
+  border-radius: 10px;
+  padding-left: 10px;
+  height: 40px;
+  width: 80%;
+  margin-bottom: 10px;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-button {
+  width: 82.5%;
+  height: 42px;
+  border-radius: 5px;
+  background-color: #5DB298;
+  color: #fff;
+  border: none;
+  outline: none;
+  line-height: 42px;
+}
+</style>

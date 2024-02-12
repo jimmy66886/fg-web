@@ -1,15 +1,46 @@
 {
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			// uni-ui 规则如下配置
+			"^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
+		}
+	},
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "uni-app"
+				"navigationBarTitleText": "有食做"
 			}
 		},
 		{
 			"path": "pages/my/my",
 			"style": {
 				"navigationBarTitleText": "my"
+			}
+		},
+		{
+			"path": "pages/material/material",
+			"style": {
+				"navigationBarTitleText": "食材"
+			}
+		},
+		{
+			"path": "pages/favorite/favorite",
+			"style": {
+				"navigationBarTitleText": "收藏"
+			}
+		},
+		{
+			"path": "pages/login/login",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
+			"path": "pages/register/register",
+			"style": {
+				"navigationBarTitleText": "注册"
 			}
 		}
 	],
@@ -26,14 +57,30 @@
 		"backgroundColor": "#fff",
 		"borderStyle": "white",
 		"list": [
-		  {
-			"text": "首页",
-			"pagePath": "pages/index/index"
-		  },
-		  {
-			"text": "我的",
-			"pagePath": "pages/my/my"
-		  }
+			{
+				"text": "菜谱",
+				"pagePath": "pages/index/index",
+				"iconPath": "static/tabs/美食菜谱.png",
+				"selectedIconPath": "static/tabs/美食菜谱-选中.png"
+			},
+			{
+				"text": "食材",
+				"pagePath": "pages/material/material",
+				"iconPath": "static/tabs/胡萝卜.png",
+				"selectedIconPath": "static/tabs/胡萝卜-选中.png"
+			},
+			{
+				"text": "收藏",
+				"pagePath": "pages/favorite/favorite",
+				"iconPath": "static/tabs/菜谱收藏.png",
+				"selectedIconPath": "static/tabs/菜谱收藏-选中.png"
+			},
+			{
+				"text": "我的",
+				"pagePath": "pages/my/my",
+				"iconPath": "static/tabs/我的.png",
+				"selectedIconPath": "static/tabs/我的-选中.png"
+			}
 		]
 	}
 }
