@@ -12,6 +12,13 @@ export default function () {
     let isEmail = ref(false)
     let activeButton = ref(1)
 
+    let disableBtn = ref(false)
+    let timer = ref()
+    let second = ref(60)
+
+    let emailRule = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
+
     interface userLoginVo {
         nickName: string,
         token: string,
@@ -39,6 +46,20 @@ export default function () {
         uni.navigateTo({ url: '/pages/register/register' })
     }
 
+
+    function countdown() { // 倒计时方法
+        disableBtn.value = true; // 禁用按钮
+        timer.value = setInterval(() => {
+            if (second.value <= 0) {
+                clearInterval(timer.value); // 清除定时器
+                disableBtn.value = false; // 启用按钮
+                second.value = 60; // 重置倒计时时长
+            } else {
+                second.value--; // 减少倒计时时间
+            }
+        }, 1000)
+    }
+
     async function getCode() {
         if (email.value == '' || !emailRule.test(email.value)) {
             uni.showToast({
@@ -47,6 +68,8 @@ export default function () {
             })
             return
         }
+
+        countdown() // 调用计时器
 
         const res = await http({
             method: 'POST',
@@ -58,8 +81,6 @@ export default function () {
             }
         })
     }
-
-    let emailRule = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
     async function login() {
         if (email.value == '' || !emailRule.test(email.value)) {
@@ -105,5 +126,5 @@ export default function () {
         })
     }
 
-    return { getCode, code, password, email, isCode, isEmail, activeButton, codeOption, emailOption, toRegister, login }
+    return { disableBtn, second, getCode, code, password, email, isCode, isEmail, activeButton, codeOption, emailOption, toRegister, login }
 }

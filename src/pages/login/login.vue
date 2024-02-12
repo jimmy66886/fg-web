@@ -17,8 +17,9 @@
     <view class="input-container">
       <input class="input-style" type="text" placeholder="请输入邮箱" v-model="email" />
     </view>
-    <view class="input-container">
-      <input class="input-style" placeholder="请输入验证码" v-model="code" /><button @tap="getCode">获取验证码</button>
+    <view class="input-button">
+      <input placeholder="请输入验证码" v-model="code" />
+      <button :disabled="disableBtn" @tap="getCode">{{ disableBtn ? second + 's后重试' : '获取验证码' }}</button>
     </view>
   </view>
 
@@ -40,11 +41,36 @@
 <script lang="ts" setup>
 import useLogin from '@/service/useLogin'
 
-const { getCode, code, password, email, isCode, isEmail, activeButton, codeOption, emailOption, toRegister, login } = useLogin()
+const { disableBtn, second, getCode, code, password, email, isCode, isEmail, activeButton, codeOption, emailOption, toRegister, login } = useLogin()
 
 </script>
 
 <style scoped>
+.input-button {
+  display: flex;
+  width: 83%;
+  margin: 0 auto;
+}
+
+.input-button input {
+  border: 1px solid #5DB298;
+  border-radius: 10px;
+  padding-left: 10px;
+  height: 40px;
+  width: 60%;
+  margin-bottom: 10px;
+}
+
+.input-button button {
+  border: 1px solid #5DB298;
+  border-radius: 10px;
+  height: 42px;
+  margin-left: 5px;
+  font-size: 12px;
+  width: 40%;
+  line-height: 42px;
+}
+
 .active {
   background-color: #5DB298;
   color: #fff !important;

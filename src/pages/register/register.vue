@@ -1,6 +1,8 @@
 <template>
-    <image src="../../../static/images/icon.png" />
-    
+  <image src="../../../static/images/icon.png" />
+  <view class="inputBox">
+    <text>昵称</text><input type="text" placeholder="请输入昵称">
+  </view>
 </template>
 
 <script lang="ts" setup>
