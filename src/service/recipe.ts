@@ -16,5 +16,17 @@ export default function () {
         })
         return res
     }
-    return { getRecipeList }
+
+    // 获取菜谱详细信息
+    async function getByRecipeId(recipeId: number) {
+        const res = await http({
+            method: 'GET',
+            url: '/recipe/getById',
+            data: {
+                recipeId,
+            }
+        })
+        return res
+    }
+    return { getRecipeList, getByRecipeId }
 }
