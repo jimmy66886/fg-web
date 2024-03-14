@@ -20,8 +20,39 @@
         <text>用料</text>
         <button>丢进菜篮子</button>
       </view>
+      <!-- 用料列表 -->
+      <view class="line"></view>
+      <view class="materialsList" v-for="item in recipe.materialsList" :key="item.materialsId">
+        <view class="materialsItem">
+          <text>{{ item.name }}</text>
+          <text class="materialsAmount">{{ item.amount }}</text>
+        </view>
+      </view>
     </view>
-    <view class="line"></view>
+    <!-- 步骤 -->
+    <view style="margin-top: 30rpx;" v-for="item in recipe.recipeStepList" :key="item.recipeStepId">
+      <view class="stepItem">
+        <text style="font-size: 36rpx;
+  font-weight: bold; margin-bottom: 30rpx;">步骤{{ item.stepNumber }}</text>
+        <!-- 这种方式太蠢了,可以直接使用image的mode属性来调整的,不需要这么麻烦,mode属性可以定义拉伸裁切的效果 -->
+        <!-- <view class="imageWrapper" :style="{ 'background-image': `url(${item.img})` }"
+          @tap="previewImage(item.stepNumber)">
+        </view> -->
+        <image class="imageWrapper" :src="item.img" mode="aspectFill" @tap="previewImage(item.stepNumber)" />
+        <text style="">{{ item.content }}</text>
+      </view>
+      <view class="line"></view>
+    </view>
+    <view class="bottomInfo">
+      <text>菜谱创建于{{ recipe.createTime.split(' ')[0] }}</text>
+      <text>菜谱更新于{{ recipe.updateTime.split(' ')[0] }}</text>
+    </view>
+  </view>
+  <view class="bottomButtons">
+    <!-- 底部操作栏 -->
+    <view>收藏</view>
+    <view>评论</view>
+    <view>分享</view>
   </view>
 </template>
 
@@ -31,12 +62,27 @@ import { ref } from 'vue'
 let recipe = ref()
 getRecipe()
 
+function previewImage(stepNumber: number) {
+  console.log(stepNumber)
+  // 将这个步骤集合中的图片提取出一个图片地址数组
+  let imgArr: any[] = []
+  recipe.value.recipeStepList.forEach((element: { img: string; }) => {
+    imgArr.push(element.img)
+  });
+  uni.previewImage({
+    current: stepNumber - 1,
+    urls: imgArr
+  })
+}
+
 function getRecipe() {
   console.log('正在获取菜谱信息')
   uni.getStorage({
     'key': 'recipe',
     success: (res) => {
       recipe.value = JSON.parse(res.data)
+      // 让步骤升序排序
+      recipe.value.recipeStepList.sort((a: { stepNumber: number; }, b: { stepNumber: number; }) => a.stepNumber - b.stepNumber)
       uni.setNavigationBarTitle({
         title: recipe.value.title
       })
@@ -46,18 +92,79 @@ function getRecipe() {
 </script>
 
 <style scoped>
+.bottomButtons {
+  display: flex;
+  justify-content: space-between;
+  position: fixed;
+  bottom: 0rpx;
+  text-align: center;
+  background-color: white;
+}
+
+.bottomButtons view {
+  line-height: 100rpx;
+  width: 250rpx;
+  height: 100rpx;
+}
+
+.bottomInfo {
+  display: flex;
+  flex-direction: column;
+  margin-left: 37.5rpx;
+  margin-right: 37.5rpx;
+  padding-bottom: 100rpx;
+}
+
+.imageWrapper {
+  width: 675rpx;
+  height: 675rpx;
+  /* 设置容器的上内边距为100%，使其高度与宽度相等 */
+  /* background-size: cover; */
+}
+
+.stepItem {
+  display: flex;
+  flex-direction: column;
+  margin-left: 37.5rpx;
+  margin-right: 37.5rpx;
+}
+
+.stepItem text {}
+
+.materialsItem {
+  height: 80rpx;
+  line-height: 80rpx;
+  border-bottom: 1rpx solid #ccc;
+}
+
+.materialsAmount {
+  position: absolute;
+  right: 100rpx;
+}
+
+.materialsList {
+  margin-left: 37.5rpx;
+  margin-right: 37.5rpx;
+  position: relative;
+}
+
 .materialsTitle {
   height: 80rpx;
   display: flex;
-  margin-left: 75rpx;
+  margin-left: 37.5rpx;
   position: relative;
   font-size: 20px;
   line-height: 80rpx;
 }
 
-.materialsTitle button{
+.materialsTitle button {
   position: absolute;
-  right: 75rpx;
+  right: 37.5rpx;
+  height: 60rpx;
+  font-size: 26rpx;
+  line-height: 60rpx;
+  top: 10rpx;
+  border: 1rpx solid #5DB298;
 }
 
 .userInfo {
@@ -75,14 +182,15 @@ function getRecipe() {
 
 .userInfo button {
   position: absolute;
-  right: 75rpx;
+  right: 37.5rpx;
+  border: 1rpx solid #5DB298;
 }
 
 .avatar {
   width: 100rpx;
   height: 100rpx;
   border-radius: 50%;
-  margin-left: 75rpx;
+  margin-left: 37.5rpx;
   margin-right: 30rpx;
 }
 
@@ -104,11 +212,11 @@ function getRecipe() {
 }
 
 .line {
-  width: 80%;
+  width: 90%;
   height: 1px;
   background-color: #ccc;
   margin: 0 auto;
-  margin-top: 50rpx;
-  margin-bottom: 50rpx;
+  margin-top: 30rpx;
+  margin-bottom: 30rpx;
 }
 </style>

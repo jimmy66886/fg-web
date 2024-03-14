@@ -48,6 +48,18 @@
 			"style": {
 				"navigationBarTitleText": "菜谱详情"
 			}
+		},
+		{
+			"path": "pages/search/search",
+			"style": {
+				"navigationBarTitleText": "菜谱搜索"
+			}
+		},
+		{
+			"path": "pages/category/category",
+			"style": {
+				"navigationBarTitleText": "菜谱分类"
+			}
 		}
 	],
 	"globalStyle": {

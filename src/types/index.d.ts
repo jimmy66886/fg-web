@@ -10,3 +10,10 @@ export type Recipe = {
     favoriteNumber: number,
     views: number
 }
+
+export type RecipeDto = {
+    title: string,
+    orderBy: string
+    page: number,
+    pageSize: number
+}
