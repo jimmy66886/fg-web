@@ -71,5 +71,15 @@ export default function () {
         return res
     }
 
-    return { cleanHistory, getSearchHistory, getRecipeList, getByRecipeId, getOneWord, getRecipeByContional }
+    // 根据用料集合查询菜谱
+    async function getByMaterials(materials: Array<string>) {
+        const res = await http({
+            method: 'POST',
+            url: '/recipe/getByMaterials',
+            data: materials
+        })
+        return res
+    }
+
+    return { getByMaterials, cleanHistory, getSearchHistory, getRecipeList, getByRecipeId, getOneWord, getRecipeByContional }
 }

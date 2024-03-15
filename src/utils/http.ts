@@ -66,7 +66,7 @@ export const http = <T>(options: UniApp.RequestOptions) => {
           // 401错误
           const userStore = useUserStore()
           userStore.clearProfile()
-          uni.navigateTo({ url: '/pages/login/login' })
+          uni.switchTab({ url: '/pages/my/my' })
           uni.showToast({
             title: '请登录后进行操作',
             icon: 'none',
