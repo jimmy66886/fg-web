@@ -72,6 +72,12 @@
 			"style": {
 				"navigationBarTitleText": "编辑个人资料"
 			}
+		},
+		{
+			"path": "pages/favorite/recipeList/recipeList",
+			"style": {
+				"navigationBarTitleText": "菜谱列表"
+			}
 		}
 	],
 	"globalStyle": {

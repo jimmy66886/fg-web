@@ -4,7 +4,7 @@
       <image @tap="setting" src="http://47.109.139.173:9000/food.guide/settingssssss.png" mode="aspectFill" />
     </view>
     <view class="userBasicInfo">
-      <image :src="avatarUrl" mode="aspectFit"></image>
+      <image :src="avatarUrl" mode="aspectFill"></image>
       <view>{{ nickName }}</view>
     </view>
     <view class="line"></view>
@@ -29,8 +29,11 @@
 import { useUserStore } from '@/stores'
 import { http } from '@/utils/http'
 import { ref } from 'vue';
+import user from '@/service/user';
 
-import { onLoad } from '@dcloudio/uni-app';
+import { onLoad, onShow } from '@dcloudio/uni-app';
+
+const { get } = user()
 
 const userStore = useUserStore()
 
@@ -91,6 +94,9 @@ function getUserProfile() {
       createTime.value = userData.profile.createTime
       isLogin.value = true
     },
+    fail: (fail) => {
+      isLogin.value = false
+    },
   })
 }
 
@@ -105,6 +111,18 @@ interface userLoginVo {
   bio: string,
   createTime: Date
 }
+
+const updateInfo = async () => {
+  const res = await get()
+  nickName.value = res.data.nickName
+  avatarUrl.value = res.data.avatarUrl
+  bio.value = res.data.bio
+}
+
+onShow(() => {
+  // 每次进入这个页面都要请求一次后端,获取最新的用户数据
+  updateInfo()
+})
 
 function wxLoing() {
   console.log('微信登录：')
