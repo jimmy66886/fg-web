@@ -49,9 +49,12 @@
     </view>
     <view class="bottomInfo">
       <text>菜谱创建于{{ recipe.createTime.split(' ')[0] }}</text>
-      <text>菜谱更新于{{ recipe.updateTime.split(' ')[0] }}</text>
+      <text style="margin-bottom: 100rpx;">菜谱更新于{{ recipe.updateTime.split(' ')[0] }}</text>
+      <comment :recipeId="recipe.recipeId"></comment>
     </view>
   </view>
+
+
   <view class="bottomButtons">
     <!-- 底部操作栏 -->
     <button>收藏</button>
@@ -64,6 +67,7 @@
 import { ref } from 'vue'
 import user from '@/service/user';
 import recipeAPI from '@/service/recipe';
+import comment from './components/comment.vue';
 
 const { get } = user()
 const { removeById } = recipeAPI()
@@ -150,6 +154,12 @@ function getRecipe() {
 </script>
 
 <style scoped>
+.commentBox {
+  background-color: gold;
+  width: 100%;
+  height: 100rpx;
+}
+
 /* 屏幕右上角显示的更多按钮 */
 .moreCtrl {
   position: fixed;

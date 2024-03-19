@@ -96,6 +96,12 @@
 			"style": {
 				"navigationBarTitleText": "调整步骤"
 			}
+		},
+		{
+			"path": "pages/recipe/commentDetail/commentDetail",
+			"style": {
+				"navigationBarTitleText": "评论详情"
+			}
 		}
 	],
 	"globalStyle": {

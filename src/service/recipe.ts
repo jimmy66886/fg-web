@@ -11,7 +11,7 @@ export default function () {
             url: '/recipe/getNormalList',
             data: {
                 page: 1,
-                pageSize: 10
+                pageSize: 100
             }
         })
         return res
