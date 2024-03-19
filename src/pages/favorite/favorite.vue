@@ -1,5 +1,5 @@
 <template>
-  <input class="search" placeholder="搜索我的收藏" />
+  <!-- <input class="search" placeholder="搜索我的收藏" /> -->
 
   <view class="titleTab">
     <view :class="{ active: activeIndex === '1' }" @tap="change('1')">所有菜谱</view>

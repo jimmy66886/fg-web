@@ -100,5 +100,21 @@ export default function () {
         return res
     }
 
-    return { getByMaterials, cleanHistory, getSearchHistory, getRecipeList, getByRecipeId, getOneWord, getRecipeByContional, upload,getByUserId }
+    // 条件分页查询菜谱列表,条件可以为菜谱标题和分类名称
+    async function removeById(recipeId: number) {
+        const res = await http({
+            method: 'POST',
+            url: '/recipe/removeById',
+            data: {
+                page: 1,
+                pageSize: 100,
+                title: '',
+                orderBy: '',
+                recipeId: recipeId
+            }
+        })
+        return res
+    }
+
+    return { removeById, getByMaterials, cleanHistory, getSearchHistory, getRecipeList, getByRecipeId, getOneWord, getRecipeByContional, upload, getByUserId }
 }

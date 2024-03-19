@@ -14,23 +14,22 @@
       </view>
       <view>bio:&nbsp;&nbsp;&nbsp;{{ bio }}</view>
     </view>
-  </view>
-
-  <view>
-    <view style="margin-left: 37.5rpx; font-size: 40rpx;">我的菜谱</view>
-    <!-- 搜索结果展示区 -->
-    <view class="result" v-for="item in recipeList" :key="item.recipeId">
-      <view @tap="toRecipeInfo(item.recipeId)" class="recipeItem">
-        <image :src="item.imageUrl" mode="aspectFill" />
-        <view class="basicInfo">
-          <view style="font-size: 40rpx; font-weight: bold;">{{ item.title }}</view>
-          <!-- 浏览量和收藏量以及点赞量放到一行 -->
-          <view class="otherInfo">
-            <view>{{ item.views }}看过</view>
-            <view>{{ item.favoriteNumber }}收藏</view>
-            <view>{{ item.likeNumber }}赞过</view>
+    <view>
+      <view style="font-size: 40rpx;">我的菜谱</view>
+      <!-- 搜索结果展示区 -->
+      <view class="result" v-for="item in recipeList" :key="item.recipeId">
+        <view @tap="toRecipeInfo(item.recipeId)" class="recipeItem">
+          <image :src="item.imageUrl" mode="aspectFill" />
+          <view class="basicInfo">
+            <view style="font-size: 40rpx; font-weight: bold;">{{ item.title }}</view>
+            <!-- 浏览量和收藏量以及点赞量放到一行 -->
+            <view class="otherInfo">
+              <view>{{ item.views }}看过</view>
+              <view>{{ item.favoriteNumber }}收藏</view>
+              <view>{{ item.likeNumber }}赞过</view>
+            </view>
+            <view style="font-size: 30rpx; color: gray;">{{ item.nickName }}</view>
           </view>
-          <view style="font-size: 30rpx; color: gray;">{{ item.nickName }}</view>
         </view>
       </view>
     </view>
@@ -210,6 +209,7 @@ function wxLoing() {
               title: '登录成功',
               icon: 'success',
             })
+            getByUserIdData()
             isLogin.value = true
           },
           fail: function (err) {
@@ -286,8 +286,8 @@ function wxLoing() {
   margin-bottom: 30rpx;
 }
 
-.result{
-  margin: 10rpx 37.5rpx;
+.result {
+  margin: 10rpx 0rpx;
 }
 
 .basicInfo {

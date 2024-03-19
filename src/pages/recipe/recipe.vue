@@ -1,5 +1,9 @@
 <template>
   <view v-if="recipe">
+
+    <image @tap="showMore" class="moreCtrl" src="http://47.109.139.173:9000/food.guide/更多-white.png"></image>
+
+
     <image class="coverImg" :src="recipe.imageUrl" mode="aspectFill"></image>
     <view class="title">{{ recipe.title }}</view>
     <view class="otherInfo">
@@ -50,17 +54,71 @@
   </view>
   <view class="bottomButtons">
     <!-- 底部操作栏 -->
-    <view>收藏</view>
-    <view>评论</view>
-    <view>分享</view>
+    <button>收藏</button>
+    <button>评论</button>
+    <button open-type="share">分享</button>
   </view>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue'
+import user from '@/service/user';
+import recipeAPI from '@/service/recipe';
+
+const { get } = user()
+const { removeById } = recipeAPI()
 
 let recipe = ref()
 getRecipe()
+
+const showMore = async () => {
+  // 先判断这个菜谱是不是自己的
+  const res = await get()
+  let itemList = ['点赞']
+  // 拿res.data.userId和recipe里的authorId
+  if (recipe.value.authorId == res.data.userId) {
+    itemList.push('删除')
+  }
+
+  uni.showActionSheet({
+    itemList: itemList,
+    success: (res) => {
+      if (!res.cancel) {
+        const selectedIndex = res.tapIndex
+        // 删除
+        if (1 === selectedIndex) {
+          // 清除本地用户数据
+          uni.showModal({
+            title: '提示',
+            content: '确定删除?',
+            showCancel: true,
+            success: async (res) => {
+              // 确定
+              if (res.confirm) {
+                console.log('菜谱id:', recipe.value.recipeId)
+                const res = await removeById(recipe.value.recipeId)
+                uni.showToast({
+                  title: '删除成功',
+                  icon: 'success',
+                  mask: true
+                })
+                uni.navigateBack({ delta: 1 })
+              }
+            }
+          })
+        }
+
+        // 点赞
+        if (0 === selectedIndex) {
+          console.log('点赞!')
+        }
+
+      }
+    }
+  })
+
+}
+
 
 function previewImage(stepNumber: number) {
   console.log(stepNumber)
@@ -92,6 +150,15 @@ function getRecipe() {
 </script>
 
 <style scoped>
+/* 屏幕右上角显示的更多按钮 */
+.moreCtrl {
+  position: fixed;
+  top: 40rpx;
+  right: 20rpx;
+  width: 60rpx;
+  height: 60rpx;
+}
+
 .bottomButtons {
   display: flex;
   justify-content: space-between;
@@ -101,7 +168,7 @@ function getRecipe() {
   background-color: white;
 }
 
-.bottomButtons view {
+.bottomButtons button {
   line-height: 100rpx;
   width: 250rpx;
   height: 100rpx;
