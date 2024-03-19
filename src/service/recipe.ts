@@ -81,5 +81,15 @@ export default function () {
         return res
     }
 
-    return { getByMaterials, cleanHistory, getSearchHistory, getRecipeList, getByRecipeId, getOneWord, getRecipeByContional }
+    // 上传菜谱
+    async function upload(recipe) {
+        const res = await http({
+            method: 'POST',
+            url: '/recipe/add',
+            data: recipe
+        })
+        return res
+    }
+
+    return { getByMaterials, cleanHistory, getSearchHistory, getRecipeList, getByRecipeId, getOneWord, getRecipeByContional, upload }
 }

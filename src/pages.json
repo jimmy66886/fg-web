@@ -10,7 +10,7 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "有食做"
+				"navigationStyle": "custom"
 			}
 		},
 		{
@@ -77,6 +77,24 @@
 			"path": "pages/favorite/recipeList/recipeList",
 			"style": {
 				"navigationBarTitleText": "菜谱列表"
+			}
+		},
+		{
+			"path": "pages/uploadRecipe/uploadRecipe",
+			"style": {
+				"navigationBarTitleText": "上传菜谱"
+			}
+		},
+		{
+			"path": "pages/uploadRecipe/manageMaterials/manageMaterials",
+			"style": {
+				"navigationBarTitleText": "调整用料"
+			}
+		},
+		{
+			"path": "pages/uploadRecipe/manageStep/manageStep",
+			"style": {
+				"navigationBarTitleText": "调整步骤"
 			}
 		}
 	],

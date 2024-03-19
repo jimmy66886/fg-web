@@ -1,4 +1,11 @@
 <template>
+  <view class="uploadRecipe">
+    <image
+      src="http://47.109.139.173:9000/food.guide/加icon.png"
+      mode="scaleToFill"
+      @tap="uploadRecipe"
+    />
+  </view>
   <!-- 轮播图 -->
   <view class="wrapImg">
     <swiper indicator-dots indicator-color="gray" indicator-active-color="white" autoplay circular>
@@ -63,13 +70,20 @@
 
 import { ref, reactive } from 'vue'
 import recipe from '@/service/recipe'
-import { onLoad } from '@dcloudio/uni-app';
+import { onShow } from '@dcloudio/uni-app';
 
 let wordStr = ref('')
 
 const { getRecipeList, getByRecipeId, getOneWord } = recipe()
 
 const recipeList = ref([])
+
+
+function uploadRecipe(){
+  uni.navigateTo({
+    url: '/pages/uploadRecipe/uploadRecipe'
+  })
+}
 
 function getCategoryInfo(categoryName: string) {
   // 其实这个分类还是会跳转到搜索界面，不过是搜索条件变成了分类是该分类罢了
@@ -119,7 +133,7 @@ const toRecipeInfo = async (recipeId: number) => {
   uni.navigateTo({ url: '/pages/recipe/recipe' })
 }
 
-onLoad(() => {
+onShow(() => {
   // 初始化数据
   getRecipeListData()
   getOneWordData()
@@ -128,6 +142,18 @@ onLoad(() => {
 </script>
 
 <style scoped>
+
+.uploadRecipe{
+  margin-top: 90rpx;
+  /* background-color: goldenrod; */
+  margin-left: 10rpx;
+}
+
+.uploadRecipe image{
+  width: 70rpx;
+  height: 70rpx;
+}
+
 .categoryItem {
   width: 144rpx;
   height: 80rpx;

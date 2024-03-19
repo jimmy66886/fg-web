@@ -6,6 +6,8 @@
   </view>
 
   <view class="favorites">
+
+
     <!-- 搜索结果展示区 -->
     <view v-for="item in recipeList" :key="item.recipeId">
       <view @tap="toRecipeInfo(item.recipeId)" class="recipeItem">
@@ -23,7 +25,28 @@
       </view>
     </view>
   </view>
+
+  <view class="bottom">-- 到底了 --</view>
+
+  <view class="bottomButtons">
+    <!-- 底部操作栏 -->
+    <view @tap="manage" class="itemBox">
+      <image src="http://47.109.139.173:9000/food.guide/%E6%95%B4%E7%90%862311.png" mode="aspectFill" />
+      整理
+    </view>
+    <view class="itemBox">
+      <image src="http://47.109.139.173:9000/food.guide/ADD.png" mode="aspectFill" />添加
+    </view>
+    <view class="itemBox">
+      <image src="http://47.109.139.173:9000/food.guide/编辑1231.png" mode="aspectFill" />编辑
+    </view>
+    <view class="itemBox">
+      <image src="http://47.109.139.173:9000/food.guide/分321享.png" mode="aspectFill" />分享
+    </view>
+  </view>
 </template>
+
+<!-- 整理这个功能,思路是这样的,首先设置一个变量,用于标识当前是否为整理状态,如果不是,则用户点击菜谱时,自动跳转至菜谱详情,如果是,则将该菜谱加入至选中列表中,并标识该菜谱 -->
 
 <script lang="ts" setup>
 
@@ -37,6 +60,13 @@ const { getById, getFavoritesInfo } = favorite()
 let recipeList = ref([])
 let favoritesInfo = ref()
 let favoritesId = ref()
+let beginManage = ref(false)
+
+function manage() {
+  beginManage.value = true
+}
+
+let selectIfImg = ref('http://47.109.139.173:9000/food.guide/未选中.png')
 
 onLoad(() => {
   uni.getStorage({
@@ -78,6 +108,37 @@ const getFavoritesInfoData = async (favoritesId: number) => {
 </script>
 
 <style scoped>
+.bottomButtons {
+  display: flex;
+  justify-content: space-between;
+  position: fixed;
+  bottom: 0rpx;
+  text-align: center;
+}
+
+.bottomButtons view {
+  line-height: 100rpx;
+  width: 187.5rpx;
+  height: 100rpx;
+}
+
+.bottomButtons image {
+  width: 50rpx;
+  height: 50rpx;
+  margin-right: 2rpx;
+}
+
+.itemBox {
+  display: flex;
+  align-items: center;
+  margin-left: 14rpx;
+}
+
+.bottom {
+  text-align: center;
+  color: gray;
+}
+
 .title {
   margin: 60rpx 30rpx;
 }

@@ -1,6 +1,6 @@
 <template>
   <view v-if="recipe">
-    <img class="coverImg" :src="recipe.imageUrl">
+    <image class="coverImg" :src="recipe.imageUrl" mode="aspectFill"></image>
     <view class="title">{{ recipe.title }}</view>
     <view class="otherInfo">
       <text>点赞数:{{ recipe.favoriteNumber }}</text>
@@ -9,7 +9,7 @@
     <view class="line"></view>
     <!-- 用户信息 -->
     <view class="userInfo">
-      <img class="avatar" :src="recipe.avatarUrl">
+      <image class="avatar" :src="recipe.avatarUrl" mode="aspectFill"></image>
       <text>{{ recipe.nickName }}</text>
       <button>关注</button>
     </view>
