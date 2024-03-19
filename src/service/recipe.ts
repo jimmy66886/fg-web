@@ -91,5 +91,14 @@ export default function () {
         return res
     }
 
-    return { getByMaterials, cleanHistory, getSearchHistory, getRecipeList, getByRecipeId, getOneWord, getRecipeByContional, upload }
+    // 根据用户id获取菜谱
+    async function getByUserId() {
+        const res = await http({
+            method: 'GET',
+            url: '/recipe/getByUserId'
+        })
+        return res
+    }
+
+    return { getByMaterials, cleanHistory, getSearchHistory, getRecipeList, getByRecipeId, getOneWord, getRecipeByContional, upload,getByUserId }
 }
