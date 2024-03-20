@@ -49,7 +49,7 @@
     </view>
     <view class="bottomInfo">
       <text>菜谱创建于{{ recipe.createTime.split(' ')[0] }}</text>
-      <text style="margin-bottom: 100rpx;">菜谱更新于{{ recipe.updateTime.split(' ')[0] }}</text>
+      <text id="scrollFlag" style="margin-bottom: 100rpx;">菜谱更新于{{ recipe.updateTime.split(' ')[0] }}</text>
       <comment :recipeId="recipe.recipeId"></comment>
     </view>
   </view>
@@ -58,7 +58,7 @@
   <view class="bottomButtons">
     <!-- 底部操作栏 -->
     <button>收藏</button>
-    <button>评论</button>
+    <button @tap="commentIt">评论</button>
     <button open-type="share">分享</button>
   </view>
 </template>
@@ -68,12 +68,45 @@ import { ref } from 'vue'
 import user from '@/service/user';
 import recipeAPI from '@/service/recipe';
 import comment from './components/comment.vue';
+import commentAPI from '@/service/comment';
+import emitter from '@/utils/emitter';
 
+const { add } = commentAPI()
 const { get } = user()
 const { removeById } = recipeAPI()
 
 let recipe = ref()
+
+let reload = ref(true)
+
 getRecipe()
+
+function commentIt() {
+  uni.pageScrollTo({ selector: '#scrollFlag', duration: 300 })
+  uni.showModal({
+    title: '评论',
+    content: '',
+    editable: true,
+    confirmText: '发送',
+    cancelText: '取消',
+    success: async (res) => {
+      if (res.confirm) {
+        let comment = {
+          recipeId: recipe.value.recipeId,
+          content: res.content
+        }
+        console.log('评论内容为：', comment)
+        const result = await add(comment)
+        // 更新一下数据？
+        console.log('尝试更新评论数据')
+        emitter.emit('reload', reload.value)
+      } else if (res.cancel) {
+        // 用户点击取消按钮的逻辑处理
+      }
+    }
+  });
+
+}
 
 const showMore = async () => {
   // 先判断这个菜谱是不是自己的

@@ -39,6 +39,37 @@ export default function () {
     }
 
 
+    /**
+     * 添加评论-给顶级评论
+     */
+    async function add(comment) {
+        const res = await http({
+            method: 'POST',
+            url: '/comment/add',
+            data: {
+                recipeId: comment.recipeId,
+                rootId: comment.rootId,
+                content: comment.content,
+            }
+        })
+        return res
+    }
 
-    return { getByRecipeId, getByTopComment }
+    /**
+     * 删除评论
+     */
+    async function deleteComment(commentId: number) {
+        const res = await http({
+            method: 'POST',
+            url: '/comment/delete',
+            data: {
+                commentId
+            }
+        })
+        return res
+    }
+
+
+
+    return { getByRecipeId, getByTopComment, add, deleteComment }
 }

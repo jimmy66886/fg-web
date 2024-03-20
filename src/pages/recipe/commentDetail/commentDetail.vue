@@ -14,7 +14,7 @@
   </view>
   <view class="commentList" v-if="commentList">
     <view style="margin-bottom: 40rpx;">共{{ commentList.length }}条回复</view>
-    <view v-for="item in commentList">
+    <view class="commentListBox" v-for="item in commentList">
       <view class="andl">
         <image :src="item.senderAvatarUrl" mode="aspectFill" />
         <view>
@@ -88,6 +88,11 @@ onLoad(() => {
 </script>
 
 <style scoped>
+
+.commentListBox{
+  margin-bottom: 40rpx;
+}
+
 .commentList {
   margin: 0 37.5rpx;
 }
