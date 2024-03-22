@@ -50,6 +50,7 @@ export default function () {
                 recipeId: comment.recipeId,
                 rootId: comment.rootId,
                 content: comment.content,
+                toId: comment.toId
             }
         })
         return res
