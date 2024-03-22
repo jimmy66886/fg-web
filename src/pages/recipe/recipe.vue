@@ -17,6 +17,9 @@
       <text>{{ recipe.nickName }}</text>
       <button>关注</button>
     </view>
+
+    <view class="recipeIntro">{{ recipe.intro }}</view>
+
     <view class="line"></view>
     <!-- 用料 -->
     <view>
@@ -193,6 +196,12 @@ function getRecipe() {
 </script>
 
 <style scoped>
+
+.recipeIntro{
+  margin: 20rpx 37.5rpx;
+  line-height: 50rpx;
+}
+
 .commentBox {
   background-color: gold;
   width: 100%;

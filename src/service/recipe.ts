@@ -5,13 +5,13 @@ import type { Recipe, RecipeDto } from '@/types/index'
 export default function () {
 
     // 分页查询菜谱列表
-    async function getRecipeList() {
+    async function getRecipeList(pageSize: number) {
         const res = await http({
             method: 'POST',
             url: '/recipe/getNormalList',
             data: {
                 page: 1,
-                pageSize: 100
+                pageSize
             }
         })
         return res

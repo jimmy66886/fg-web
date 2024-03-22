@@ -127,20 +127,20 @@ const uploadRecipe = async () => {
 
   uni.removeStorage({
     key: 'recipe',
-    success: (result) => {},
-    fail: (error) => {}
+    success: (result) => { },
+    fail: (error) => { }
   })
 
   uni.removeStorage({
     key: 'recipeStep',
-    success: (result) => {},
-    fail: (error) => {}
+    success: (result) => { },
+    fail: (error) => { }
   })
 
   uni.removeStorage({
     key: 'materials',
-    success: (result) => {},
-    fail: (error) => {}
+    success: (result) => { },
+    fail: (error) => { }
   })
 
   uni.navigateBack({ delta: 1 })
@@ -350,9 +350,7 @@ onShow(() => {
 
 .introInput {
   height: 150rpx;
-  width: 100%;
-  padding-left: 37.5rpx;
-  margin-top: 40rpx;
+  margin: 40rpx 37.5rpx;
 }
 
 .titleInput {

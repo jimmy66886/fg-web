@@ -1,69 +1,70 @@
 <template>
-  <view class="uploadRecipe">
-    <image
-      src="http://47.109.139.173:9000/food.guide/加icon.png"
-      mode="scaleToFill"
-      @tap="uploadRecipe"
-    />
-  </view>
-  <!-- 轮播图 -->
-  <view class="wrapImg">
-    <swiper indicator-dots indicator-color="gray" indicator-active-color="white" autoplay circular>
-      <swiper-item>
-        <image src="http://47.109.139.173:9000/food.guide/早饭.jpg" mode="aspectFill" />
-      </swiper-item>
-      <swiper-item>
-        <image src="http://47.109.139.173:9000/food.guide/早饭.jpg" mode="aspectFill" />
-      </swiper-item>
-      <swiper-item>
-        <image src="http://47.109.139.173:9000/food.guide/早饭.jpg" mode="aspectFill" />
-      </swiper-item>
-      <swiper-item>
-        <image src="http://47.109.139.173:9000/food.guide/早饭.jpg" mode="aspectFill" />
-      </swiper-item>
-    </swiper>
-  </view>
+  <scroll-view class="scroll-y" :scroll-top="scrollTop" scroll-y="true" @scrolltolower="loadMore">
+    <view class="uploadRecipe">
+      <image src="http://47.109.139.173:9000/food.guide/加icon.png" mode="scaleToFill" @tap="uploadRecipe" />
+    </view>
+    <!-- 轮播图 -->
+    <view class="wrapImg">
+      <swiper indicator-dots indicator-color="gray" indicator-active-color="white" autoplay circular>
+        <swiper-item>
+          <image src="http://47.109.139.173:9000/food.guide/早饭.jpg" mode="aspectFill" />
+        </swiper-item>
+        <swiper-item>
+          <image src="http://47.109.139.173:9000/food.guide/早饭.jpg" mode="aspectFill" />
+        </swiper-item>
+        <swiper-item>
+          <image src="http://47.109.139.173:9000/food.guide/早饭.jpg" mode="aspectFill" />
+        </swiper-item>
+        <swiper-item>
+          <image src="http://47.109.139.173:9000/food.guide/早饭.jpg" mode="aspectFill" />
+        </swiper-item>
+      </swiper>
+    </view>
 
-  <view class="content">
-    <view class="serach" @tap="toSearch">
-      <image src="http://47.109.139.173:9000/food.guide/searchfg.png" mode="scaleToFill" />
-      今天想做点什么?
+    <view class="content">
+      <view class="serach" @tap="toSearch">
+        <image src="http://47.109.139.173:9000/food.guide/searchfg.png" mode="scaleToFill" />
+        今天想做点什么?
+      </view>
+      <view class="oneWord">{{ wordStr }}</view>
     </view>
-    <view class="oneWord">{{ wordStr }}</view>
-  </view>
 
-  <!-- 快捷分类 -->
-  <view class="category">
-    <view @tap="getCategoryInfo('家常菜')" class="categoryItem">
-      <image src="http://47.109.139.173:9000/food.guide/家常菜.png" mode="scaleToFill" />
-      <view>家常菜</view>
+    <!-- 快捷分类 -->
+    <view class="category">
+      <view @tap="getCategoryInfo('家常菜')" class="categoryItem">
+        <image src="http://47.109.139.173:9000/food.guide/家常菜.png" mode="scaleToFill" />
+        <view>家常菜</view>
+      </view>
+      <view @tap="getCategoryInfo('快手菜')" class="categoryItem">
+        <image src="http://47.109.139.173:9000/food.guide/快手菜.png" mode="scaleToFill" />
+        <view>快手菜</view>
+      </view>
+      <view @tap="getCategoryInfo('热门菜')" class="categoryItem">
+        <image src="http://47.109.139.173:9000/food.guide/热门菜.png" mode="scaleToFill" />
+        <view>热门菜</view>
+      </view>
+      <view @tap="getCategoryInfo('下饭菜')" class="categoryItem">
+        <image src="http://47.109.139.173:9000/food.guide/下饭菜.png" mode="scaleToFill" />
+        <view>下饭菜</view>
+      </view>
+      <view @tap="toMoreCategory" class="categoryItem">
+        <image src="http://47.109.139.173:9000/food.guide/更多.png" mode="scaleToFill" />
+        <view>更多</view>
+      </view>
     </view>
-    <view @tap="getCategoryInfo('快手菜')" class="categoryItem">
-      <image src="http://47.109.139.173:9000/food.guide/快手菜.png" mode="scaleToFill" />
-      <view>快手菜</view>
-    </view>
-    <view @tap="getCategoryInfo('热门菜')" class="categoryItem">
-      <image src="http://47.109.139.173:9000/food.guide/热门菜.png" mode="scaleToFill" />
-      <view>热门菜</view>
-    </view>
-    <view @tap="getCategoryInfo('下饭菜')" class="categoryItem">
-      <image src="http://47.109.139.173:9000/food.guide/下饭菜.png" mode="scaleToFill" />
-      <view>下饭菜</view>
-    </view>
-    <view @tap="toMoreCategory" class="categoryItem">
-      <image src="http://47.109.139.173:9000/food.guide/更多.png" mode="scaleToFill" />
-      <view>更多</view>
-    </view>
-  </view>
 
-  <!-- 下面就是菜谱列表 -->
-  <view class="recipeList">
-    <view class="recipeItem" v-for="item in recipeList" :key="item.recipeId">
-      <image @tap="toRecipeInfo(item.recipeId)" :src="item.imageUrl" mode="aspectFill" />
-      <view>{{ item.title }}</view>
-      <!-- <view>{{ item.nickName }}</view> -->
+    <!-- 下面就是菜谱列表 -->
+    <view class="recipeList">
+      <view class="recipeItem" v-for="item in recipeList" :key="item.recipeId">
+        <image @tap="toRecipeInfo(item.recipeId)" :src="item.imageUrl" mode="aspectFill" />
+        <view>{{ item.title }}</view>
+        <!-- <view>{{ item.nickName }}</view> -->
+      </view>
     </view>
-  </view>
+    <!-- <view class="loadText">{{ loadText }}</view> -->
+  </scroll-view>
+
+
 </template>
 
 <script setup lang="ts">
@@ -73,13 +74,21 @@ import recipe from '@/service/recipe'
 import { onShow } from '@dcloudio/uni-app';
 
 let wordStr = ref('')
+let loadText = ref('上拉加载更多')
+let pageSize = ref(10)
 
 const { getRecipeList, getByRecipeId, getOneWord } = recipe()
 
 const recipeList = ref([])
 
+const loadMore = async () => {
+  loadText.value = '加载中'
+  pageSize.value += 10
+  const res = await getRecipeList(pageSize.value)
+  recipeList.value = res.records
+}
 
-function uploadRecipe(){
+function uploadRecipe() {
   uni.navigateTo({
     url: '/pages/uploadRecipe/uploadRecipe'
   })
@@ -116,7 +125,8 @@ const getOneWordData = async () => {
 
 const getRecipeListData = async () => {
   console.log('开始分页获取菜谱列表')
-  const res = await getRecipeList()
+  // 默认传10,也就是获取10个
+  const res = await getRecipeList(pageSize.value)
   recipeList.value = res.records
 }
 
@@ -142,14 +152,23 @@ onShow(() => {
 </script>
 
 <style scoped>
+.scroll-y {
+  height: 100vh;
+}
 
-.uploadRecipe{
+.loadText {
+  border-top: 2rpx solid black;
+  line-height: 60rpx;
+  text-align: center;
+}
+
+.uploadRecipe {
   margin-top: 90rpx;
   /* background-color: goldenrod; */
   margin-left: 10rpx;
 }
 
-.uploadRecipe image{
+.uploadRecipe image {
   width: 70rpx;
   height: 70rpx;
 }
