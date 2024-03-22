@@ -102,6 +102,12 @@
 			"style": {
 				"navigationBarTitleText": "评论详情"
 			}
+		},
+		{
+			"path": "pages/recipe/cookingMode/cookingMode",
+			"style": {
+				"navigationBarTitleText": "烹饪模式"
+			}
 		}
 	],
 	"globalStyle": {
