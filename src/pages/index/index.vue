@@ -3,6 +3,7 @@
     <view class="uploadRecipe">
       <image src="http://47.109.139.173:9000/food.guide/加icon.png" mode="scaleToFill" @tap="uploadRecipe" />
     </view>
+
     <!-- 轮播图 -->
     <view class="wrapImg">
       <swiper indicator-dots indicator-color="gray" indicator-active-color="white" autoplay circular>
@@ -61,7 +62,7 @@
         <!-- <view>{{ item.nickName }}</view> -->
       </view>
     </view>
-    <!-- <view class="loadText">{{ loadText }}</view> -->
+    <view class="loadText">{{ loadText }}</view>
   </scroll-view>
 
 
@@ -84,11 +85,20 @@ const recipeList = ref([])
 const loadMore = async () => {
   loadText.value = '加载中'
   pageSize.value += 10
+  let arrLength = recipeList.value.length
   const res = await getRecipeList(pageSize.value)
   recipeList.value = res.records
+  // 用于显示暂无更多的信息
+  if (arrLength === recipeList.value.length) {
+    loadText.value = '暂无更多'
+  }
 }
 
 function uploadRecipe() {
+
+  // 首页的加号可以加一个功能,就是扫一扫?或者就是识图
+
+
   uni.navigateTo({
     url: '/pages/uploadRecipe/uploadRecipe'
   })
@@ -157,9 +167,10 @@ onShow(() => {
 }
 
 .loadText {
-  border-top: 2rpx solid black;
+  border-top: 2rpx solid rgba(0, 0, 0, 0.356);
   line-height: 60rpx;
   text-align: center;
+  color: rgba(0, 0, 0, 0.356);
 }
 
 .uploadRecipe {

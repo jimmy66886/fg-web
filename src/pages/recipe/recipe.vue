@@ -60,29 +60,158 @@
 
   <view class="bottomButtons">
     <!-- 底部操作栏 -->
-    <button>收藏</button>
+    <button v-if="!isFavorited" @tap="favoriteCtrl(true)">收藏</button>
+    <button v-else @tap="favoriteCtrl(false)">已收藏</button>
     <button @tap="commentIt">评论</button>
     <button open-type="share">分享</button>
   </view>
+
+
+  <uni-popup ref="popup" background-color="#fff" type="bottom" border-radius="10px 10px 0 0">
+    <!-- 用户点击收藏时,直接弹出用户的收藏夹,让用户选择收藏菜谱的位置,第一个可以是所有收藏,下方的就是用户自定义的收藏夹 -->
+    <view class="favoriteCtrlTitle">
+      <text>选择菜单</text>
+      <view @tap="createFavorites">创建新菜单</view>
+    </view>
+    <view class="favoritesItem" @tap="addToFavorites(-1)">
+      <image class="favoriteCover" src="http://47.109.139.173:9000/food.guide/folder.png" mode="aspectFit" />
+      <view>所有收藏</view>
+      <image class="favoriteIcon" src="http://47.109.139.173:9000/food.guide/3212132favorite.png" mode="aspectFit" />
+    </view>
+    <!-- 用户自定义收藏夹 -->
+    <!-- 当用户点击收藏按钮后,立即收起收藏夹弹框,这样就不需要再做一个收藏成功的图标了 -->
+    <view @tap="addToFavorites(item.favoritesId)" class="favoritesItem" v-for="item in favoritesList"
+      :key="item.favoritesId">
+      <image class="favoriteCover" :src="item.coverImg" mode="aspectFill" />
+      <view>{{ item.name }}</view>
+      <image class="favoriteIcon" src="http://47.109.139.173:9000/food.guide/3212132favorite.png" mode="aspectFit" />
+    </view>
+    <view style="margin-bottom: 100rpx;"></view>
+  </uni-popup>
+
+  <uni-popup ref="popup2" background-color="#fff" type="bottom" border-radius="10px 10px 0 0">
+    <view class="createCtrl">
+      <view @tap="cancelCreate">取消</view>
+      <button @tap="createAndFavorite" :disabled="addFavoritesObj.name.length == 0">创建并收藏</button>
+    </view>
+    <view class="createFavoritesBox">
+      <view>收藏夹标题</view>
+      <textarea maxlength="10" v-model="addFavoritesObj.name" style="height: 200rpx; width:100%"
+        placeholder="必填 · 10字以内"></textarea>
+      <view>描述</view>
+      <textarea maxlength="100" v-model="addFavoritesObj.intro" class="descr" placeholder="选填 · 100字以内"></textarea>
+    </view>
+  </uni-popup>
 </template>
 
 <script lang="ts" setup>
+
 import { ref } from 'vue'
 import user from '@/service/user';
 import recipeAPI from '@/service/recipe';
 import comment from './components/comment.vue';
 import commentAPI from '@/service/comment';
 import emitter from '@/utils/emitter';
+import favorite from '@/service/favorite'
 
 const { add } = commentAPI()
 const { get } = user()
 const { removeById } = recipeAPI()
+const { insertFavorites, addTo, getFavorited, deleteByRecipeId, getAllFavorites } = favorite()
 
 let recipe = ref()
 
+// 收藏夹弹出框
+let popup = ref()
+
+let popup2 = ref()
+
+// 收藏夹列表
+let favoritesList = ref([])
+
 let reload = ref(true)
 
+let isFavorited = ref(false)
+
+let addFavoritesObj = ref({
+  name: '',
+  intro: '',
+})
+
 getRecipe()
+
+const createAndFavorite = async () => {
+  // 创建收藏夹并收藏该菜谱
+  console.log('要创建的收藏夹：', addFavoritesObj.value)
+  const res = await insertFavorites(addFavoritesObj.value)
+  // res.data就是收藏夹id
+  const resTwo = await addTo(res.data, recipe.value.recipeId)
+  uni.showToast({
+    title: '收藏成功',
+    icon: 'success',
+    mask: true
+  })
+  isFavorited.value = true
+  popup.value.close()
+  popup2.value.close()
+}
+
+function cancelCreate() {
+  popup2.value.close()
+}
+
+function createFavorites() {
+  popup2.value.open('bottom')
+}
+
+const favoriteCtrl = async (ctrl: boolean) => {
+  if (ctrl) {
+    console.log('进行收藏')
+    // 弹出收藏夹弹框
+    const res = await getAllFavorites()
+    favoritesList.value = res.data
+    popup.value.open('bottom')
+  } else {
+    // 先把取消收藏的操作写了
+
+    uni.showModal({
+      title: '提示',
+      content: '确定移除收藏?',
+      showCancel: true,
+      success: async ({ confirm, cancel }) => {
+        if (confirm) {
+          const res = await deleteByRecipeId(recipe.value.recipeId)
+          isFavorited.value = false
+          uni.showToast({
+            title: '取消收藏成功',
+            icon: 'success',
+            mask: true
+          })
+        }
+      }
+    })
+
+  }
+}
+
+
+const addToFavorites = async (favoritesId: number) => {
+  console.log('要添加到指定的收藏夹:', favoritesId)
+  if (favoritesId === -1) {
+    // 添加至所有收藏中
+    const res = await addTo(null, recipe.value.recipeId)
+  } else {
+    // 添加到自定义收藏夹中
+    const res = await addTo(favoritesId, recipe.value.recipeId)
+  }
+  uni.showToast({
+    title: '收藏成功',
+    icon: 'success',
+    mask: true
+  })
+  isFavorited.value = true
+  popup.value.close()
+}
 
 function commentIt() {
   uni.pageScrollTo({ selector: '#scrollFlag', duration: 300 })
@@ -183,8 +312,12 @@ function getRecipe() {
   console.log('正在获取菜谱信息')
   uni.getStorage({
     'key': 'recipe',
-    success: (res) => {
+    success: async (res) => {
       recipe.value = JSON.parse(res.data)
+      const favoriteRes = await getFavorited(recipe.value.recipeId)
+      // 将用户是否收藏过该菜谱保存至isFavorited变量
+      isFavorited.value = favoriteRes.data
+
       // 让步骤升序排序
       recipe.value.recipeStepList.sort((a: { stepNumber: number; }, b: { stepNumber: number; }) => a.stepNumber - b.stepNumber)
       uni.setNavigationBarTitle({
@@ -196,8 +329,71 @@ function getRecipe() {
 </script>
 
 <style scoped>
+.createCtrl {
+  display: flex;
+  justify-content: space-between;
+  margin: 40rpx 37.5rpx;
+  position: relative;
+  align-items: center;
+}
 
-.recipeIntro{
+.createCtrl button {
+  position: absolute;
+  right: 0;
+}
+
+.createFavoritesBox {
+  margin: 50rpx 37.5rpx;
+}
+
+.createFavoritesBox .descr {
+  height: 500rpx;
+  width: 100%;
+}
+
+.allFavorite {
+  margin: 0 37.5rpx;
+}
+
+.favoritesItem {
+  margin: 10rpx 37.5rpx;
+  line-height: 120rpx;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.favoritesItem .favoriteIcon {
+  position: absolute;
+  width: 60rpx;
+  height: 60rpx;
+  right: 0;
+}
+
+.favoritesItem .favoriteCover {
+  width: 180rpx;
+  height: 120rpx;
+  border-radius: 30rpx;
+  margin-right: 30rpx;
+}
+
+.favoriteCtrlTitle {
+  margin: 10rpx 37.5rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.favoriteCtrlTitle view {
+  line-height: 80rpx;
+  width: 200rpx;
+  height: 80rpx;
+  background-color: #F1F1F1;
+  border-radius: 30rpx;
+  text-align: center
+}
+
+.recipeIntro {
   margin: 20rpx 37.5rpx;
   line-height: 50rpx;
 }

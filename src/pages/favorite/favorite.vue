@@ -65,6 +65,7 @@ const toRecipeInfo = async (recipeId: number) => {
 }
 
 const getAllFavoriteData = async () => {
+  console.log('尝试获取所有收藏菜谱')
   const res = await getAllFavorite()
   favoriteList.value = res.records
 }
@@ -99,6 +100,7 @@ function getFavoritesInfo(favoritesId: number) {
 
 onShow(() => {
   getAllFavoritesData()
+  getAllFavoriteData()
 })
 
 </script>

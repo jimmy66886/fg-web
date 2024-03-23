@@ -56,5 +56,60 @@ export default function () {
         return res
     }
 
-    return { getAllFavorites, getAllFavorite, getById ,getFavoritesInfo}
+    /**
+     * 根据菜谱id查询用户是否收藏过菜谱
+     */
+    async function getFavorited(recipeId: number) {
+        const res = await http({
+            method: 'GET',
+            url: '/favorite/getFavorited',
+            data: {
+                recipeId
+            }
+        })
+        return res
+    }
+
+    /**
+     * 根据菜谱id删除菜谱收藏
+     */
+    async function deleteByRecipeId(recipeId: number) {
+        const res = await http({
+            method: 'POST',
+            url: '/favorite/delete',
+            data: {
+                recipeId
+            }
+        })
+        return res
+    }
+
+    /**
+     * 添加至指定的收藏夹中
+     */
+    async function addTo(favoritesId: number, recipeId: number) {
+        const res = await http({
+            method: 'POST',
+            url: '/favorite/addTo',
+            data: {
+                favoritesId,
+                recipeId
+            }
+        })
+        return res
+    }
+
+    /**
+     * 添加一个收藏夹
+     */
+    async function insertFavorites(favorites) {
+        const res = await http({
+            method: 'POST',
+            url: '/favorites/insert',
+            data: favorites
+        })
+        return res
+    }
+
+    return { insertFavorites, addTo, deleteByRecipeId, getFavorited, getAllFavorites, getAllFavorite, getById, getFavoritesInfo }
 }
