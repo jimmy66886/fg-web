@@ -43,5 +43,33 @@ export default function () {
         return res
     }
 
-    return { getLiked, addByRecipeId, cancelLike }
+    /**
+     * 添加评论点赞
+     */
+    async function addByCommentId(commentId: number) {
+        const res = await http({
+            method: 'POST',
+            url: '/likes/add',
+            data: {
+                commentId
+            }
+        })
+        return res
+    }
+
+    /**
+     * 取消评论点赞
+     */
+    async function cancelCommentLike(commentId: number) {
+        const res = await http({
+            method: 'POST',
+            url: '/likes/delete',
+            data: {
+                commentId
+            }
+        })
+        return res
+    }
+
+    return { cancelCommentLike, addByCommentId, getLiked, addByRecipeId, cancelLike }
 }

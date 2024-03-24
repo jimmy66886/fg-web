@@ -2,13 +2,26 @@
   <view v-if="topComment" class="commentBox">
     <!-- 头像,昵称,日期,点赞这四部分内容 -->
     <view class="andl">
-      <image :src="topComment.senderAvatarUrl" mode="aspectFill" />
+      <image class="avatar" :src="topComment.senderAvatarUrl" mode="aspectFill" />
       <view>
         <view>{{ topComment.senderName }} <text style="margin-left: 10rpx; color: green;" v-if="topIsAuthor">作者</text>
         </view>
         <view>{{ topComment.sendDateTime.split(' ')[0] }}</view>
       </view>
-      <view class="like">点赞</view>
+      <view @tap="commentLikeCtrl(topComment.commentId, true)" v-if="!topComment.isLiked" class="like">
+        <image class="likeButton" src="http://47.109.139.173:9000/food.guide/%E7%82%B9%E8%B5%9Eing.png"
+          mode="aspectFill" />
+        <view>
+          {{ topComment.likeCount }}
+        </view>
+      </view>
+      <view @tap="commentLikeCtrl(topComment.commentId, false)" v-if="topComment.isLiked" class="like">
+        <image class="likeButton" src="http://47.109.139.173:9000/food.guide/%E7%82%B9%E8%B5%9Eed.png"
+          mode="aspectFill" />
+        <view>
+          {{ topComment.likeCount }}
+        </view>
+      </view>
     </view>
     <!-- 评论内容 -->
     <view class="content" @tap="commentIt(topComment.commentId)">{{ topComment.content }}</view>
@@ -19,13 +32,30 @@
     <view style="margin-bottom: 40rpx;">共{{ commentList.length }}条回复</view>
     <view class="commentListBox" v-for="item in commentList">
       <view class="andl">
-        <image :src="item.senderAvatarUrl" mode="aspectFill" />
+        <image class="avatar" :src="item.senderAvatarUrl" mode="aspectFill" />
         <view>
           <view>{{ item.senderName }}<text style="margin-left: 10rpx; color: green;" v-if="item.isAuthor">作者</text>
           </view>
           <view>{{ item.sendDateTime.split(' ')[0] }}</view>
         </view>
-        <view class="like">点赞</view>
+
+        <view @tap="commentLikeCtrl(item.commentId, true)" v-if="!item.isLiked" class="like">
+          <image class="likeButton" src="http://47.109.139.173:9000/food.guide/%E7%82%B9%E8%B5%9Eing.png"
+            mode="aspectFill" />
+          <view>
+            {{ item.likeCount }}
+          </view>
+        </view>
+        <view @tap="commentLikeCtrl(item.commentId, false)" v-if="item.isLiked" class="like">
+          <image class="likeButton" src="http://47.109.139.173:9000/food.guide/%E7%82%B9%E8%B5%9Eed.png"
+            mode="aspectFill" />
+          <view>
+            {{ item.likeCount }}
+          </view>
+        </view>
+
+        <!-- <view class="like">点赞</view>
+        <view class="like">已赞</view> -->
       </view>
       <!-- 评论内容 -->
       <!-- 评论内容这个地方涉及到是否是回复二级评论,如果是回复二级评论,则一定有toId,就根据这个item是否存在toId,来限定评论内容的显示方式 -->
@@ -46,7 +76,9 @@ import { onLoad, onReady } from '@dcloudio/uni-app';
 import { ref } from 'vue';
 import commentAPI from '@/service/comment';
 import emitter from '@/utils/emitter';
+import likes from '@/service/likes'
 
+const { addByCommentId, cancelCommentLike } = likes()
 const { deleteComment, getByTopComment, add } = commentAPI()
 
 let topComment = ref()
@@ -56,6 +88,30 @@ let reloadCommentList = ref(false)
 
 let topIsAuthor = ref(false)
 // let isAuthor = ref(false)
+
+const commentLikeCtrl = async (commentId: number, ctrl: Boolean) => {
+  if (ctrl) {
+    console.log('进行点赞：', commentId)
+    const res = await addByCommentId(commentId)
+    commentList.value.forEach(item => {
+      if (item.commentId === commentId) {
+        item.isLiked = true
+        item.likeCount++
+      }
+    })
+    console.log('点赞成功')
+  } else {
+    console.log('取消点赞：', commentId)
+    const res = await cancelCommentLike(commentId)
+    commentList.value.forEach(item => {
+      if (item.commentId === commentId) {
+        item.isLiked = false
+        item.likeCount--
+      }
+    })
+    console.log('取消点赞成功')
+  }
+}
 
 // 如何判断评论用户是否是作者?可以在页面加载时,从本地存储中取出recipe,将评论id与作者id相比对,如果一样,则在昵称旁边加上<作者>
 
@@ -220,6 +276,12 @@ onLoad(() => {
 </script>
 
 <style scoped>
+.likeButton {
+  height: 50rpx;
+  width: 50rpx;
+}
+
+
 .commentListBox {
   margin-bottom: 40rpx;
 }
@@ -237,6 +299,8 @@ onLoad(() => {
 .like {
   position: absolute;
   right: 37.5rpx;
+  display: flex;
+  align-items: center
 }
 
 .content {
@@ -244,7 +308,7 @@ onLoad(() => {
   font-size: 40rpx;
 }
 
-.andl image {
+.andl .avatar {
   width: 80rpx;
   height: 80rpx;
   border-radius: 40rpx;

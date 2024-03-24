@@ -4,13 +4,26 @@
         <view class="commentItem" v-for="(item, index) in topComment">
             <!-- 头像,昵称,日期,点赞这四部分内容 -->
             <view class="andl">
-                <image :src="item.senderAvatarUrl" mode="aspectFill" />
+                <image class="avatar" :src="item.senderAvatarUrl" mode="aspectFill" />
                 <view>
                     <view>{{ item.senderName }}<text style="margin-left: 10rpx; color: green;"
                             v-if="item.isAuthor">作者</text></view>
                     <view>{{ item.sendDateTime.split(' ')[0] }}</view>
                 </view>
-                <view class="like">点赞</view>
+                <view @tap="commentLikeCtrl(item.commentId, true)" v-if="!item.isLiked" class="like">
+                    <image class="likeButton" src="http://47.109.139.173:9000/food.guide/%E7%82%B9%E8%B5%9Eing.png"
+                        mode="aspectFill" />
+                    <view>
+                        {{ item.likeCount }}
+                    </view>
+                </view>
+                <view @tap="commentLikeCtrl(item.commentId, false)" v-if="item.isLiked" class="like">
+                    <image class="likeButton" src="http://47.109.139.173:9000/food.guide/%E7%82%B9%E8%B5%9Eed.png"
+                        mode="aspectFill" />
+                    <view>
+                        {{ item.likeCount }}
+                    </view>
+                </view>
             </view>
             <!-- 评论内容 -->
             <view @longpress="deleteThis(item.commentId, item.senderId)" @tap="commentIt(item.commentId)"
@@ -28,14 +41,41 @@ import comment from '@/service/comment';
 import emitter from '@/utils/emitter';
 import { onShow } from '@dcloudio/uni-app';
 import { defineProps, ref } from 'vue'
+import likes from '@/service/likes'
 
 const { getByRecipeId, getByTopComment, add, deleteComment } = comment()
+const { addByCommentId, cancelCommentLike } = likes()
 
 let content = ref('')
 
 let topComment = ref([])
 
 let { recipeId } = defineProps(['recipeId'])
+
+
+const commentLikeCtrl = async (commentId: number, ctrl: Boolean) => {
+    if (ctrl) {
+        console.log('进行点赞：', commentId)
+        const res = await addByCommentId(commentId)
+        topComment.value.forEach(item => {
+            if (item.commentId === commentId) {
+                item.isLiked = true
+                item.likeCount++
+            }
+        })
+        console.log('点赞成功')
+    } else {
+        console.log('取消点赞：', commentId)
+        const res = await cancelCommentLike(commentId)
+        topComment.value.forEach(item => {
+            if (item.commentId === commentId) {
+                item.isLiked = false
+                item.likeCount--
+            }
+        })
+        console.log('取消点赞成功')
+    }
+}
 
 function deleteThis(commentId: number, senderId: number) {
     // 拿用户id和这条评论的用户id做对比,如果一样则可以进行删除
@@ -146,6 +186,11 @@ getCommentData()
 </script>
 
 <style scoped>
+.likeButton {
+    height: 50rpx;
+    width: 50rpx;
+}
+
 .commentItem {
     margin-bottom: 40rpx;
 }
@@ -159,6 +204,8 @@ getCommentData()
 .like {
     position: absolute;
     right: 37.5rpx;
+    display: flex;
+    align-items: center
 }
 
 .content {
@@ -166,7 +213,7 @@ getCommentData()
     font-size: 40rpx;
 }
 
-.andl image {
+.andl .avatar {
     width: 80rpx;
     height: 80rpx;
     border-radius: 40rpx;
