@@ -20,7 +20,7 @@
   <!-- 搜索控件,综合/点赞/收藏,综合就是默认 -->
   <!-- 和搜索结果一块出 -->
   <view v-if="recipeList" class="searchCondition">
-    <view :class="{ active: activeIndex === '' }" @tap="setQueryOrder('')">综合</view>
+    <view :class="{ active: activeIndex === '' }" @tap="setQueryOrder('')">新发布</view>
     <view :class="{ active: activeIndex === 'like_number' }" @tap="setQueryOrder('like_number')">点赞最高</view>
     <view :class="{ active: activeIndex === 'favorite_number' }" @tap="setQueryOrder('favorite_number')">收藏最多</view>
   </view>

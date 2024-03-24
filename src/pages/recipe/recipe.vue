@@ -7,7 +7,7 @@
     <image class="coverImg" :src="recipe.imageUrl" mode="aspectFill"></image>
     <view class="title">{{ recipe.title }}</view>
     <view class="otherInfo">
-      <text>点赞数:{{ recipe.favoriteNumber }}</text>
+      <text>收藏数:{{ recipe.favoriteNumber }}</text>
       <text>浏览量:{{ recipe.views }}</text>
     </view>
     <view class="line"></view>
@@ -51,8 +51,8 @@
       <view class="line"></view>
     </view>
     <view class="bottomInfo">
-      <text>菜谱创建于{{ recipe.createTime.split(' ')[0] }}</text>
-      <text id="scrollFlag" style="margin-bottom: 100rpx;">菜谱更新于{{ recipe.updateTime.split(' ')[0] }}</text>
+      <text id="scrollFlag" style="margin-bottom: 100rpx;">菜谱创建于{{ recipe.createTime.split(' ')[0] }}</text>
+      <!-- <text id="scrollFlag" style="margin-bottom: 100rpx;">菜谱更新于{{ recipe.updateTime.split(' ')[0] }}</text> -->
       <comment :recipeId="recipe.recipeId"></comment>
     </view>
   </view>
@@ -63,7 +63,8 @@
     <button v-if="!isFavorited" @tap="favoriteCtrl(true)">收藏</button>
     <button v-else @tap="favoriteCtrl(false)">已收藏</button>
     <button @tap="commentIt">评论</button>
-    <button open-type="share">分享</button>
+    <button v-if="!isLiked" @tap="likeCtrl(true)">点赞</button>
+    <button v-else @tap="likeCtrl(false)">已点赞</button>
   </view>
 
 
@@ -113,11 +114,13 @@ import comment from './components/comment.vue';
 import commentAPI from '@/service/comment';
 import emitter from '@/utils/emitter';
 import favorite from '@/service/favorite'
+import likes from '@/service/likes';
 
 const { add } = commentAPI()
 const { get } = user()
 const { removeById } = recipeAPI()
 const { insertFavorites, addTo, getFavorited, deleteByRecipeId, getAllFavorites } = favorite()
+const { getLiked, addByRecipeId, cancelLike } = likes()
 
 let recipe = ref()
 
@@ -132,6 +135,7 @@ let favoritesList = ref([])
 let reload = ref(true)
 
 let isFavorited = ref(false)
+let isLiked = ref(false)
 
 let addFavoritesObj = ref({
   name: '',
@@ -162,6 +166,27 @@ function cancelCreate() {
 
 function createFavorites() {
   popup2.value.open('bottom')
+}
+
+const likeCtrl = async (ctrl: boolean) => {
+  if (ctrl) {
+    console.log('进行点赞')
+    const res = await addByRecipeId(recipe.value.recipeId)
+    isLiked.value = true
+    uni.showToast({
+      title: '点赞成功',
+      icon: 'success',
+      mask: true
+    })
+  } else {
+    const res = await cancelLike(recipe.value.recipeId)
+    isLiked.value = false
+    uni.showToast({
+      title: '取消点赞成功',
+      icon: 'success',
+      mask: true
+    })
+  }
 }
 
 const favoriteCtrl = async (ctrl: boolean) => {
@@ -243,7 +268,7 @@ function commentIt() {
 const showMore = async () => {
   // 先判断这个菜谱是不是自己的
   const res = await get()
-  let itemList = ['点赞', '烹饪模式']
+  let itemList = ['分享', '烹饪模式']
   // 拿res.data.userId和recipe里的authorId
   if (recipe.value.authorId == res.data.userId) {
     itemList.push('删除')
@@ -279,7 +304,7 @@ const showMore = async () => {
 
         // 点赞
         if (0 === selectedIndex) {
-          console.log('点赞!')
+          console.log('进行分享')
         }
 
         // 烹饪模式
@@ -317,6 +342,10 @@ function getRecipe() {
       const favoriteRes = await getFavorited(recipe.value.recipeId)
       // 将用户是否收藏过该菜谱保存至isFavorited变量
       isFavorited.value = favoriteRes.data
+
+      // 将用户是否点赞过该菜谱保存至isLiked变量
+      const likeRes = await getLiked(recipe.value.recipeId)
+      isLiked.value = likeRes.data
 
       // 让步骤升序排序
       recipe.value.recipeStepList.sort((a: { stepNumber: number; }, b: { stepNumber: number; }) => a.stepNumber - b.stepNumber)
