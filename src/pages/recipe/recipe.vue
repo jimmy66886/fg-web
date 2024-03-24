@@ -268,7 +268,7 @@ function commentIt() {
 const showMore = async () => {
   // 先判断这个菜谱是不是自己的
   const res = await get()
-  let itemList = ['分享', '烹饪模式']
+  let itemList = ['烹饪模式']
   // 拿res.data.userId和recipe里的authorId
   if (recipe.value.authorId == res.data.userId) {
     itemList.push('删除')
@@ -280,7 +280,7 @@ const showMore = async () => {
       if (!res.cancel) {
         const selectedIndex = res.tapIndex
         // 删除
-        if (2 === selectedIndex) {
+        if (1 === selectedIndex) {
           // 清除本地用户数据
           uni.showModal({
             title: '提示',
@@ -302,13 +302,8 @@ const showMore = async () => {
           })
         }
 
-        // 点赞
-        if (0 === selectedIndex) {
-          console.log('进行分享')
-        }
-
         // 烹饪模式
-        if (1 === selectedIndex) {
+        if (0 === selectedIndex) {
           console.log('烹饪模式启动!')
           uni.navigateTo({ url: '/pages/recipe/cookingMode/cookingMode' })
         }
