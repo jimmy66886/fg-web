@@ -4,10 +4,10 @@
         <view class="commentItem" v-for="(item, index) in topComment">
             <!-- 头像,昵称,日期,点赞这四部分内容 -->
             <view class="andl">
-                <image class="avatar" :src="item.senderAvatarUrl" mode="aspectFill" />
+                <image @tap="toUserInfo(item.senderId)" class="avatar" :src="item.senderAvatarUrl" mode="aspectFill" />
                 <view>
-                    <view>{{ item.senderName }}<text style="margin-left: 10rpx; color: green;"
-                            v-if="item.isAuthor">作者</text></view>
+                    <view @tap="toUserInfo(item.senderId)">{{ item.senderName }}<text
+                            style="margin-left: 10rpx; color: green;" v-if="item.isAuthor">作者</text></view>
                     <view>{{ item.sendDateTime.split(' ')[0] }}</view>
                 </view>
                 <view @tap="commentLikeCtrl(item.commentId, true)" v-if="!item.isLiked" class="like">
@@ -51,6 +51,18 @@ let content = ref('')
 let topComment = ref([])
 
 let { recipeId } = defineProps(['recipeId'])
+
+function toUserInfo(authorId: number) {
+    console.log('要看的人:', authorId)
+    uni.setStorage({
+        key: 'authorId',
+        data: authorId,
+        success: (result) => {
+            uni.navigateTo({ url: '/pages/userInfo/userInfo' })
+        },
+        fail: (error) => { }
+    })
+}
 
 
 const commentLikeCtrl = async (commentId: number, ctrl: Boolean) => {

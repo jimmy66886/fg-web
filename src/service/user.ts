@@ -28,5 +28,19 @@ export default function () {
         return res
     }
 
-    return { updateUserInfo, get }
+    /**
+     * 根据用户id查询用户信息
+     */
+    async function getById(userId: number) {
+        const res = await http({
+            method: 'GET',
+            url: '/user/getById',
+            data: {
+                userId
+            }
+        })
+        return res
+    }
+
+    return { getById, updateUserInfo, get }
 }

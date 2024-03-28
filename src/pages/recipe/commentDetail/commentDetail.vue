@@ -2,9 +2,11 @@
   <view v-if="topComment" class="commentBox">
     <!-- 头像,昵称,日期,点赞这四部分内容 -->
     <view class="andl">
-      <image class="avatar" :src="topComment.senderAvatarUrl" mode="aspectFill" />
+      <image @tap="toUserInfo(topComment.senderId)" class="avatar" :src="topComment.senderAvatarUrl"
+        mode="aspectFill" />
       <view>
-        <view>{{ topComment.senderName }} <text style="margin-left: 10rpx; color: green;" v-if="topIsAuthor">作者</text>
+        <view @tap="toUserInfo(topComment.senderId)">{{ topComment.senderName }} <text
+            style="margin-left: 10rpx; color: green;" v-if="topIsAuthor">作者</text>
         </view>
         <view>{{ topComment.sendDateTime.split(' ')[0] }}</view>
       </view>
@@ -32,9 +34,10 @@
     <view style="margin-bottom: 40rpx;">共{{ commentList.length }}条回复</view>
     <view class="commentListBox" v-for="item in commentList">
       <view class="andl">
-        <image class="avatar" :src="item.senderAvatarUrl" mode="aspectFill" />
+        <image @tap="toUserInfo(item.senderId)" class="avatar" :src="item.senderAvatarUrl" mode="aspectFill" />
         <view>
-          <view>{{ item.senderName }}<text style="margin-left: 10rpx; color: green;" v-if="item.isAuthor">作者</text>
+          <view @tap="toUserInfo(item.senderId)">{{ item.senderName }}<text style="margin-left: 10rpx; color: green;"
+              v-if="item.isAuthor">作者</text>
           </view>
           <view>{{ item.sendDateTime.split(' ')[0] }}</view>
         </view>
@@ -88,6 +91,19 @@ let reloadCommentList = ref(false)
 
 let topIsAuthor = ref(false)
 // let isAuthor = ref(false)
+
+
+function toUserInfo(authorId: number) {
+  console.log('要看的人:', authorId)
+  uni.setStorage({
+    key: 'authorId',
+    data: authorId,
+    success: (result) => {
+      uni.navigateTo({ url: '/pages/userInfo/userInfo' })
+    },
+    fail: (error) => { }
+  })
+}
 
 const commentLikeCtrl = async (commentId: number, ctrl: Boolean) => {
   if (ctrl) {

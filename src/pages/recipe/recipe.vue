@@ -13,9 +13,12 @@
     <view class="line"></view>
     <!-- 用户信息 -->
     <view class="userInfo">
-      <image class="avatar" :src="recipe.avatarUrl" mode="aspectFill"></image>
-      <text>{{ recipe.nickName }}</text>
-      <button>关注</button>
+      <image @tap="toUserInfo(recipe.authorId)" class="avatar" :src="recipe.avatarUrl" mode="aspectFill"></image>
+      <text @tap="toUserInfo(recipe.authorId)">{{ recipe.nickName }}</text>
+      <view v-if="!isMe">
+        <button v-if="isFollowed" @tap="followOne(false)">已关注</button>
+        <button v-else @tap="followOne(true)">关注</button>
+      </view>
     </view>
 
     <view class="recipeIntro">{{ recipe.intro }}</view>
@@ -25,7 +28,8 @@
     <view>
       <view class="materialsTitle">
         <text>用料</text>
-        <button>丢进菜篮子</button>
+        <button v-if="!isBasketed" @tap="addToBasket">丢进菜篮子</button>
+        <button v-else>已丢进菜篮子</button>
       </view>
       <!-- 用料列表 -->
       <view class="line"></view>
@@ -107,7 +111,7 @@
 
 <script lang="ts" setup>
 
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import user from '@/service/user';
 import recipeAPI from '@/service/recipe';
 import comment from './components/comment.vue';
@@ -115,12 +119,15 @@ import commentAPI from '@/service/comment';
 import emitter from '@/utils/emitter';
 import favorite from '@/service/favorite'
 import likes from '@/service/likes';
+import follow from '@/service/follow';
+import basket from '@/service/basket'
 
 const { add } = commentAPI()
 const { get } = user()
 const { removeById } = recipeAPI()
 const { insertFavorites, addTo, getFavorited, deleteByRecipeId, getAllFavorites } = favorite()
 const { getLiked, addByRecipeId, cancelLike } = likes()
+const { getFollowed, addFollow, deleteFollow } = follow()
 
 let recipe = ref()
 
@@ -136,6 +143,9 @@ let reload = ref(true)
 
 let isFavorited = ref(false)
 let isLiked = ref(false)
+let isFollowed = ref(false)
+let isMe = ref(false)
+let isBasketed = ref(false)
 
 let addFavoritesObj = ref({
   name: '',
@@ -143,6 +153,119 @@ let addFavoritesObj = ref({
 })
 
 getRecipe()
+
+/**
+ * 添加到菜篮子
+ * 在菜谱页面点击,这个接口就是根据菜谱的材料来添加到菜篮子中的,所以要传入
+ * 用料列表以及菜谱名和菜谱id
+ */
+const addToBasket = async () => {
+  let basketDto = {
+    recipeId: recipe.value.recipeId,
+    basketName: recipe.value.title,
+    basketMaterialList: recipe.value.materialsList
+  }
+
+  // 赋值isFinised
+  basketDto.basketMaterialList.forEach(element => {
+    element.isFinised = false
+  });
+
+  let basketList = [basketDto]
+
+  // 直接操作缓存,脱离后端实现菜篮子接口
+  uni.getStorage({
+    key: 'basketList',
+    success: ({ data }) => {
+      // 成功,则表示之前就有缓存了,所以要进行追加
+      console.log('之前有菜篮子数据,开始追加')
+      let basketListOriginal = JSON.parse(data)
+      // 添加进去
+      basketListOriginal.unshift(basketDto)
+
+
+      // 重写缓存
+      uni.setStorage({
+        key: 'basketList',
+        data: JSON.stringify(basketListOriginal),
+        success: (result) => { },
+        fail: (error) => { }
+      })
+    },
+    fail: (error) => {
+      console.log('之前没有菜篮子数据,直接写入缓存')
+      uni.setStorage({
+        key: 'basketList',
+        data: JSON.stringify(basketList),
+        success: (result) => { },
+        fail: (error) => { }
+      })
+    }
+  })
+
+  isBasketed.value = true
+  uni.showToast({
+    title: '添加成功',
+    icon: 'success',
+    mask: true
+  })
+
+}
+
+// 判断是不是看自己的菜谱
+const getIsMe = async () => {
+  const res = await get()
+  if (res.data.userId === recipe.value.authorId) {
+    // 是作者
+    isMe.value = true
+  } else {
+    isMe.value = false
+  }
+}
+
+getIsMe()
+
+function toUserInfo(authorId: number) {
+  uni.setStorage({
+    key: 'authorId',
+    data: authorId,
+    success: (result) => {
+      uni.navigateTo({ url: '/pages/userInfo/userInfo' })
+    },
+    fail: (error) => { }
+  })
+}
+
+const followOne = async (ctrl: boolean) => {
+  if (ctrl) {
+    const res = await addFollow(recipe.value.authorId)
+    isFollowed.value = true
+    uni.showToast({
+      title: '关注成功',
+      icon: 'success',
+      mask: true
+    })
+  }
+  else {
+
+    uni.showModal({
+      title: '提示',
+      content: '确认取消关注?',
+      showCancel: true,
+      success: async ({ confirm, cancel }) => {
+        if (confirm) {
+          const res = await deleteFollow(recipe.value.authorId)
+          isFollowed.value = false
+          uni.showToast({
+            title: '取消关注',
+            icon: 'success',
+            mask: true
+          })
+        }
+      }
+    })
+  }
+}
 
 const createAndFavorite = async () => {
   // 创建收藏夹并收藏该菜谱
@@ -341,6 +464,24 @@ function getRecipe() {
       // 将用户是否点赞过该菜谱保存至isLiked变量
       const likeRes = await getLiked(recipe.value.recipeId)
       isLiked.value = likeRes.data
+
+      // 将用户是否关注过作者保存至isFollowed变量
+      const followRes = await getFollowed(recipe.value.authorId)
+      isFollowed.value = followRes.data
+
+      // 还要加个判断当前菜谱食材有没有加入到菜篮子中-isBasketed
+      uni.getStorage({
+        key: 'basketList',
+        success: ({ data }) => {
+          JSON.parse(data).forEach(item => {
+            if (item.recipeId === recipe.value.recipeId) {
+              isBasketed.value = true
+            }
+            // 没有的话就默认false
+          })
+        },
+        fail: (error) => { }
+      })
 
       // 让步骤升序排序
       recipe.value.recipeStepList.sort((a: { stepNumber: number; }, b: { stepNumber: number; }) => a.stepNumber - b.stepNumber)

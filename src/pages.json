@@ -108,6 +108,24 @@
 			"style": {
 				"navigationBarTitleText": "烹饪模式"
 			}
+		},
+		{
+			"path": "pages/userInfo/userInfo",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		},
+		{
+			"path": "pages/userInfo/follow/follow",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		},
+		{
+			"path": "pages/basket/basket",
+			"style": {
+				"navigationBarTitleText": "菜篮子"
+			}
 		}
 	],
 	"globalStyle": {

@@ -14,6 +14,19 @@
       </view>
       <view>bio:&nbsp;&nbsp;&nbsp;{{ bio }}</view>
     </view>
+
+    <view class="fff">
+      <view @tap="toFollowOrFan('follow')" class="ff">
+        <view>{{ followList.length }}</view>
+        <view>关注</view>
+      </view>
+      <view @tap="toFollowOrFan('fan')" class="ff">
+        <view>{{ fans.length }}</view>
+        <view>粉丝</view>
+      </view>
+      <view class="basket" @tap="toBasketPage">菜篮子</view>
+    </view>
+
     <view>
       <view style="font-size: 40rpx;">我的菜谱</view>
       <!-- 搜索结果展示区 -->
@@ -49,11 +62,14 @@ import { http } from '@/utils/http'
 import { ref } from 'vue';
 import user from '@/service/user';
 import recipe from '@/service/recipe';
-
+import follow from '@/service/follow';
+import basket from '@/service/basket'
 import { onLoad, onShow } from '@dcloudio/uni-app';
 
 const { get } = user()
 const { getByRecipeId, getByUserId } = recipe()
+const { getFollowList, getFans } = follow()
+const { getAllBasket } = basket()
 
 const userStore = useUserStore()
 
@@ -64,6 +80,47 @@ let createTime = ref()
 let isLogin = ref(false)
 
 let recipeList = ref([])
+
+let followList = ref([])
+let fans = ref([])
+
+/**
+ * 跳转至菜篮子界面
+ */
+const toBasketPage = async () => {
+  // 换个思路,菜篮子接口存前端实现,脱离后端
+  uni.navigateTo({ url: '/pages/basket/basket' })
+}
+
+/**
+ * 根据本地缓存中的数据判断要展示的是粉丝还是关注
+ * @param fof 是关注还是粉丝
+ */
+const toFollowOrFan = async (fof: string) => {
+  const followRes = await getFollowList(-1)
+  followList.value = followRes.data
+  const fanRes = await getFans(-1)
+  fans.value = fanRes.data
+  if (fof === 'follow') {
+    uni.setStorage({
+      key: 'followList',
+      data: JSON.stringify(followList.value),
+      success: (result) => {
+        uni.navigateTo({ url: '/pages/userInfo/follow/follow' })
+      },
+      fail: (error) => { }
+    })
+  } else if (fof === 'fan') {
+    uni.setStorage({
+      key: 'fans',
+      data: JSON.stringify(fans.value),
+      success: (result) => {
+        uni.navigateTo({ url: '/pages/userInfo/follow/follow' })
+      },
+      fail: (error) => { }
+    })
+  }
+}
 
 const toRecipeInfo = async (recipeId: number) => {
   const res = await getByRecipeId(recipeId)
@@ -153,7 +210,7 @@ const updateInfo = async () => {
 }
 
 const getByUserIdData = async () => {
-  const res = await getByUserId()
+  const res = await getByUserId(-1)
   recipeList.value = res.data
   console.log('@@@', recipeList.value)
 }
@@ -162,7 +219,24 @@ onShow(() => {
   // 每次进入这个页面都要请求一次后端,获取最新的用户数据
   updateInfo()
   getByUserIdData()
+  // 获取数据,并不跳转
+  toFollowOrFan('none')
+  clearFF()
 })
+
+function clearFF() {
+  console.log('移除本地缓存')
+  uni.removeStorage({
+    key: 'fans',
+    success: (result) => { },
+    fail: (error) => { }
+  })
+  uni.removeStorage({
+    key: 'followList',
+    success: (result) => { },
+    fail: (error) => { }
+  })
+}
 
 
 
@@ -209,6 +283,10 @@ function wxLoing() {
               title: '登录成功',
               icon: 'success',
             })
+            const followRes = await getFollowList(-1)
+            followList.value = followRes.data
+            const fanRes = await getFans(-1)
+            fans.value = fanRes.data
             getByUserIdData()
             isLogin.value = true
           },
@@ -225,6 +303,32 @@ function wxLoing() {
 </script>
 
 <style scoped>
+.basket {
+  position: absolute;
+  right: 0;
+  width: 150rpx;
+  height: 80rpx;
+  background-color: #5DB298;
+  line-height: 80rpx;
+  text-align: center;
+  color: white;
+  border-radius: 10rpx;
+}
+
+.ff {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 100rpx;
+}
+
+.fff {
+  display: flex;
+  position: relative;
+  margin-top: 50rpx;
+  margin-bottom: 50rpx;
+}
+
 .settings {
   width: 100%;
   height: 70rpx;

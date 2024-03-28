@@ -92,10 +92,13 @@ export default function () {
     }
 
     // 根据用户id获取菜谱
-    async function getByUserId() {
+    async function getByUserId(userId: number) {
         const res = await http({
             method: 'GET',
-            url: '/recipe/getByUserId'
+            url: '/recipe/getByUserId',
+            data: {
+                userId
+            }
         })
         return res
     }
