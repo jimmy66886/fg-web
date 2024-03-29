@@ -121,10 +121,11 @@ import favorite from '@/service/favorite'
 import likes from '@/service/likes';
 import follow from '@/service/follow';
 import basket from '@/service/basket'
+import { onShow } from '@dcloudio/uni-app';
 
 const { add } = commentAPI()
 const { get } = user()
-const { removeById } = recipeAPI()
+const { removeById, getByRecipeId } = recipeAPI()
 const { insertFavorites, addTo, getFavorited, deleteByRecipeId, getAllFavorites } = favorite()
 const { getLiked, addByRecipeId, cancelLike } = likes()
 const { getFollowed, addFollow, deleteFollow } = follow()
@@ -395,6 +396,7 @@ const showMore = async () => {
   // 拿res.data.userId和recipe里的authorId
   if (recipe.value.authorId == res.data.userId) {
     itemList.push('删除')
+    itemList.push('编辑')
   }
 
   uni.showActionSheet({
@@ -402,6 +404,19 @@ const showMore = async () => {
     success: (res) => {
       if (!res.cancel) {
         const selectedIndex = res.tapIndex
+
+        // 编辑
+        if (2 === selectedIndex) {
+          uni.setStorage({
+            key: 'updateRecipe',
+            data: JSON.stringify(recipe.value),
+            success: (result) => {
+              uni.navigateTo({ url: '/pages/uploadRecipe/uploadRecipe' })
+            },
+            fail: (error) => { }
+          })
+        }
+
         // 删除
         if (1 === selectedIndex) {
           // 清除本地用户数据
@@ -450,6 +465,13 @@ function previewImage(stepNumber: number) {
     urls: imgArr
   })
 }
+
+onShow(async () => {
+  console.log('重新获取菜谱信息')
+  // 这就要发请求了哎
+  const res = await getByRecipeId(recipe.value.recipeId)
+  recipe.value = res.data
+})
 
 function getRecipe() {
   console.log('正在获取菜谱信息')

@@ -31,7 +31,26 @@
     <view @tap="addStepLength">再增加一步</view>
   </view>
 
+  <view style="background-color: #EEEEEE; height: 40rpx; width: 100%;"></view>
+  <view class="moreSettings" @tap="addCategory">
+    <view>添加分类</view>
+    <image src="http://47.109.139.173:9000/food.guide/进入箭头.png" mode="aspectFill" />
+  </view>
+
   <view class="pubsub" @tap="uploadRecipe">发布这个菜谱</view>
+
+
+  <uni-popup class="categoryPopup" ref="popup" background-color="#fff" type="bottom" border-radius="10px 10px 0 0">
+    <view style="margin: 50rpx 37.5rpx;">添加分类以让更多的人看到!</view>
+    <view class="searchInputBox">
+      <input v-model="categoryItem" type="text" placeholder="如：快手菜、早餐、零食">
+      <view v-if="categoryItem" @tap="addOneCategory">添加</view>
+    </view>
+    <view v-if="recipe.categoryList">
+      分类列表
+      <view v-for="item in recipe.categoryList">{{ item }}</view>
+    </view>
+  </uni-popup>
 
 </template>
 
@@ -40,18 +59,23 @@ import { onShow } from '@dcloudio/uni-app';
 import user from '@/service/user';
 import { ref } from 'vue';
 import recipeAPI from '@/service/recipe';
+import category from '@/service/category';
 
-const { upload } = recipeAPI()
+const { upload, updateRecipe } = recipeAPI()
+const { getByRecipeid } = category()
 
 let recipe = ref({
   imageUrl: 'http://47.109.139.173:9000/food.guide/Snipaste_2024-03-17_17-10-28.png',
   title: '',
   intro: '',
   materialsList: [],
-  recipeStepList: []
+  recipeStepList: [],
+  categoryList: []
 })
 
 let showFlag = ref(false)
+let popup = ref()
+let categoryItem = ref('')
 
 // 声明一个菜谱用料数组
 // 用户点击"再增加一行",就将该数组长度加一
@@ -73,7 +97,27 @@ let recipeStep = ref([{
   content: ''
 }])
 
+let isUpdate = ref(false)
+
 const { get } = user()
+
+
+const addCategory = async () => {
+  console.log('添加分类')
+  popup.value.open()
+  // 发送请求,查询该菜谱的分类列表,如果菜谱id为空则不进行查询
+  if (recipe.value.recipeId !== undefined) {
+    const res = await getByRecipeid(recipe.value.recipeId)
+    recipe.value.categoryList = []
+    res.data.forEach(element => {
+      recipe.value.categoryList.unshift(element.name)
+    });
+  }
+}
+
+function addOneCategory() {
+  recipe.value.categoryList.unshift(categoryItem.value)
+}
 
 const uploadRecipe = async () => {
 
@@ -99,7 +143,14 @@ const uploadRecipe = async () => {
 
   recipe.value.materialsList = materials.value
   recipe.value.recipeStepList = recipeStep.value
-  const res = await upload(recipe.value)
+
+  if (isUpdate.value) {
+    const res = await updateRecipe(recipe.value)
+  } else {
+    // 是普通上传,走上传的接口
+    const res = await upload(recipe.value)
+  }
+
   uni.showToast({
     title: '发布成功',
     icon: 'success',
@@ -111,7 +162,8 @@ const uploadRecipe = async () => {
     title: '',
     intro: '',
     materialsList: [],
-    recipeStepList: []
+    recipeStepList: [],
+    categoryList: []
   }
 
   materials.value = [{
@@ -139,6 +191,12 @@ const uploadRecipe = async () => {
 
   uni.removeStorage({
     key: 'materials',
+    success: (result) => { },
+    fail: (error) => { }
+  })
+
+  uni.removeStorage({
+    key: 'updateRecipe',
     success: (result) => { },
     fail: (error) => { }
   })
@@ -239,6 +297,41 @@ function uploadCoverImg() {
   })
 }
 
+/**
+ * 判断是否是编辑菜谱
+ */
+const update = async () => {
+  uni.getStorage({
+    key: 'updateRecipe',
+    success: async ({ data }) => {
+      console.log('是更新菜谱')
+      // 取值,并删除缓存,以防止下次取消编辑后上传菜谱的缓存残留
+      isUpdate.value = true
+      recipe.value = JSON.parse(data)
+      recipe.value.categoryList = []
+      materials.value = recipe.value.materialsList
+      recipeStep.value = recipe.value.recipeStepList
+
+      // 也要获取一下之前的分类
+      const categoryRes = await getByRecipeid(recipe.value.recipeId)
+      categoryRes.data.forEach(element => {
+        recipe.value.categoryList.push(element.name)
+      });
+
+      uni.removeStorage({
+        key: 'updateRecipe',
+        success: (result) => { },
+        fail: (error) => { }
+      })
+    },
+    fail: (error) => {
+      console.log('不是更新菜谱')
+    }
+  })
+}
+
+update()
+
 onShow(() => {
   // 先请求一次用户数据,判断用户是否登录
   getUesrData()
@@ -300,6 +393,28 @@ onShow(() => {
 </script>
 
 <style scoped>
+.searchInputBox {
+  margin: 50rpx 37.5rpx;
+  display: flex;
+  justify-content: space-between;
+}
+
+.moreSettings {
+  height: 100rpx;
+  line-height: 100rpx;
+  font-size: 40rpx;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 37.5rpx;
+  margin-bottom: 100rpx;
+}
+
+.moreSettings image {
+  width: 80rpx;
+  height: 80rpx;
+  margin-top: 10rpx;
+}
+
 .pubsub {
   background-color: #5DB298;
   height: 100rpx;
@@ -327,6 +442,7 @@ onShow(() => {
   margin-left: 37.5rpx;
   justify-content: space-between;
   margin-top: 50rpx;
+  margin-bottom: 50rpx;
 }
 
 .materialsCtrlBox view {

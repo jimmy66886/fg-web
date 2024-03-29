@@ -30,5 +30,19 @@ export default function () {
         return res
     }
 
-    return { getAllCategory }
+    /**
+     * 根据菜谱id查询菜谱的分类列表
+     */
+    async function getByRecipeid(recipeId: number) {
+        const res = await http({
+            method: 'GET',
+            url: '/category/getByRecipeId',
+            data: {
+                recipeId
+            }
+        })
+        return res
+    }
+
+    return { getAllCategory, getByRecipeid }
 }

@@ -91,6 +91,16 @@ export default function () {
         return res
     }
 
+    // 修改菜谱
+    async function updateRecipe(recipe) {
+        const res = await http({
+            method: 'POST',
+            url: '/recipe/update',
+            data: recipe
+        })
+        return res
+    }
+
     // 根据用户id获取菜谱
     async function getByUserId(userId: number) {
         const res = await http({
@@ -119,5 +129,5 @@ export default function () {
         return res
     }
 
-    return { removeById, getByMaterials, cleanHistory, getSearchHistory, getRecipeList, getByRecipeId, getOneWord, getRecipeByContional, upload, getByUserId }
+    return { updateRecipe,removeById, getByMaterials, cleanHistory, getSearchHistory, getRecipeList, getByRecipeId, getOneWord, getRecipeByContional, upload, getByUserId }
 }
