@@ -1,10 +1,12 @@
 <template>
   <view class="follow">
 
-    <view v-if="resultList.length" class="resultItem" v-for="item in resultList" :key="item.userId">
-      <image :src="item.avatarUrl" mode="aspectFill" />
-      <view>{{ item.nickName }}</view>
-      <view class="followButton">关注按钮</view>
+    <view v-if="resultList.length" class="resultItem" v-for="(item, index) in resultList"
+      :key="item.userId">
+      <image @tap="toUserInfo(item.userId)" :src="item.avatarUrl" mode="aspectFill" />
+      <view @tap="toUserInfo(item.userId)">{{ item.nickName }}</view>
+      <view v-if="item.isFollowed" @tap="followCtrl(false, index)" class="followButton">已关注</view>
+      <view v-else class="followButton" @tap="followCtrl(true, index)">关注</view>
     </view>
     <view v-else style="text-align: center; margin-top: 100rpx;">
       这里是空的哦~
@@ -17,10 +19,43 @@
 import { ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
 import user from '@/service/user';
+import follow from '@/service/follow';
 
+
+const { addFollow, deleteFollow } = follow()
 const { get } = user()
 
 let resultList = ref([])
+
+function toUserInfo(authorId: number) {
+  uni.setStorage({
+    key: 'authorId',
+    data: authorId,
+    success: (result) => {
+      uni.navigateTo({ url: '/pages/userInfo/userInfo' })
+    },
+    fail: (error) => { }
+  })
+}
+
+const followCtrl = async (ctrl: Boolean, index: number) => {
+  if (ctrl) {
+    const res = await addFollow(resultList.value[index].userId)
+    resultList.value[index].isFollowed = true
+  } else {
+    uni.showModal({
+      title: '提示',
+      content: '确认取消关注?',
+      showCancel: true,
+      success: async ({ confirm, cancel }) => {
+        if (confirm) {
+          const res = await deleteFollow(resultList.value[index].userId)
+          resultList.value[index].isFollowed = false
+        }
+      }
+    })
+  }
+}
 
 onLoad(async () => {
 

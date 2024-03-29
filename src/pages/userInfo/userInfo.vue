@@ -12,14 +12,15 @@
 
     <view class="fff">
       <view class="ff">
-        <view>40</view>
+        <view>{{ followList.length }}</view>
         <view>关注</view>
       </view>
       <view class="ff">
-        <view>80</view>
+        <view>{{ fans.length }}</view>
         <view>粉丝</view>
       </view>
-      <view v-if="!isAuthor" class="follow">关注</view>
+      <view @tap="followCtrl(true)" v-if="!isAuthor && isFollowed == false" class="follow">关注</view>
+      <view @tap="followCtrl(false)" v-if="!isAuthor && isFollowed == true" class="follow">已关注</view>
     </view>
 
     <view class="line"></view>
@@ -41,7 +42,7 @@
         </view>
       </view>
     </view>
-    <view v-if="recipeList.length===0" style="text-align: center;">
+    <view v-if="recipeList.length === 0" style="text-align: center;">
       <text>暂无数据</text>
     </view>
 
@@ -54,18 +55,45 @@ import emitter from '@/utils/emitter';
 import user from '@/service/user';
 import recipe from '@/service/recipe';
 import { ref } from 'vue'
+import follow from '@/service/follow';
 
 const { getById, get } = user()
 const { getByUserId } = recipe()
+const { getFollowed, addFollow, deleteFollow, getFollowList, getFans } = follow()
 
 let userInfo = ref({
   avatarUrl: '',
-  nickName: ''
+  nickName: '',
+  userId: 0
 })
 
 let recipeList = ref([])
+let followList = ref([])
+let fans = ref([])
+
 
 let isAuthor = ref(false)
+let isFollowed = ref(false)
+
+
+const followCtrl = async (ctrl: boolean) => {
+  if (ctrl) {
+    const res = await addFollow(userInfo.value.userId)
+    isFollowed.value = true
+  } else {
+    uni.showModal({
+      title: '提示',
+      content: '确认取消关注',
+      showCancel: true,
+      success: async ({ confirm, cancel }) => {
+        if (confirm) {
+          const res = await deleteFollow(userInfo.value.userId)
+          isFollowed.value = false
+        }
+      }
+    })
+  }
+}
 
 
 function init() {
@@ -87,6 +115,17 @@ function init() {
       if (userRes.data.userId === data) {
         isAuthor.value = true
       }
+
+
+      // 获取该用户的粉丝列表和关注列表
+      const followListRes = await getFollowList(data)
+      followList.value = followListRes.data
+      const fansRes = await getFans(data)
+      fans.value = fansRes.data
+
+      // 判断是否关注了对方
+      const followRes = await getFollowed(data)
+      isFollowed.value = followRes.data
 
     },
     fail: (error) => { }

@@ -66,6 +66,12 @@ export const http = <T>(options: UniApp.RequestOptions) => {
           // 401错误
           const userStore = useUserStore()
           userStore.clearProfile()
+          // 直接移除掉user本地缓存得了
+          uni.removeStorage({
+            key: 'user',
+            success: (result) => { },
+            fail: (error) => { }
+          })
           uni.switchTab({ url: '/pages/my/my' })
           uni.showToast({
             title: '请登录后进行操作',
