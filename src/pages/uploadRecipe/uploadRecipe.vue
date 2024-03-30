@@ -46,10 +46,14 @@
       <input v-model="categoryItem" type="text" placeholder="如：快手菜、早餐、零食">
       <view v-if="categoryItem" @tap="addOneCategory">添加</view>
     </view>
-    <view v-if="recipe.categoryList">
+    <view class="categoryBox" v-if="recipe.categoryList">
       分类列表
-      <view v-for="item in recipe.categoryList">{{ item }}</view>
+      <view class="categoryList">
+        <view class="categoryItem" v-for="item in recipe.categoryList">{{ item }}</view>
+      </view>
     </view>
+    <button @tap="save" class="finished">完成</button>
+    <view style="height: 400rpx;"></view>
   </uni-popup>
 
 </template>
@@ -100,6 +104,10 @@ let recipeStep = ref([{
 let isUpdate = ref(false)
 
 const { get } = user()
+
+function save(){
+  popup.value.close()
+}
 
 
 const addCategory = async () => {
@@ -263,7 +271,7 @@ function uploadStepImg(index: number) {
       const { tempFilePath } = res.tempFiles[0]
       // 文件上传
       uni.uploadFile({
-        url: 'http://localhost:8080/upload',
+        url: 'http://192.168.137.1:8080/upload',
         name: 'file',
         filePath: tempFilePath,
         success: (res) => {
@@ -285,7 +293,7 @@ function uploadCoverImg() {
       const { tempFilePath } = res.tempFiles[0]
       // 文件上传
       uni.uploadFile({
-        url: 'http://localhost:8080/upload',
+        url: 'http://192.168.137.1:8080/upload',
         name: 'file',
         filePath: tempFilePath,
         success: (res) => {
@@ -393,6 +401,30 @@ onShow(() => {
 </script>
 
 <style scoped>
+
+.finished {
+  margin: 0 37.5rpx;
+}
+
+.categoryItem{
+  height: 70rpx;
+  background-color: #e6e4e4;
+  margin-right: 30rpx;
+  text-align: center;
+  padding: 0 20rpx;
+  line-height: 70rpx;
+  border-radius: 15rpx;
+}
+
+.categoryList{
+  margin-top: 40rpx;
+  display: flex;
+}
+
+.categoryBox{
+  margin: 50rpx 37.5rpx;
+}
+
 .searchInputBox {
   margin: 50rpx 37.5rpx;
   display: flex;

@@ -47,7 +47,9 @@
   <view v-else class="bottomButtons">
     <view @tap="deleteItem" :class="{ disabled: selectedNumber <= 0 }" class="selectItemBox">删除
     </view>
-    <view class="selectItemBox">全选
+    <view v-if="!isSelectAll" @tap="selectAll(true)" class="selectItemBox">全选
+    </view>
+    <view v-if="isSelectAll" @tap="selectAll(false)" class="selectItemBox">取消全选
     </view>
     <view class="selectItemBox" @tap="exitEdit">退出
     </view>
@@ -97,6 +99,26 @@ let updateFavoritesData = ref({
 })
 
 let selectedNumber = ref(0)
+let isSelectAll = ref(false)
+
+function selectAll(ctrl: boolean) {
+
+  if (ctrl) {
+    // 全选
+    recipeList.value.forEach(item => {
+      item.isSelected = true
+    })
+    isSelectAll.value = true
+    selectedNumber.value = recipeList.value.length
+  } else {
+    // 取消全选
+    recipeList.value.forEach(item => {
+      item.isSelected = false
+    })
+    isSelectAll.value = false
+    selectedNumber.value = 0
+  }
+}
 
 const deleteItem = async () => {
   if (selectedNumber.value > 0) {

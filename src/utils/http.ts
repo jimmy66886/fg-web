@@ -5,7 +5,7 @@
 import { useUserStore } from '@/stores'
 
 // 请求基地址
-const baseURL = 'http://localhost:8080/app'
+const baseURL = 'http://192.168.137.1:8080/app'
 
 // 添加拦截器
 const httpInterceptor = {

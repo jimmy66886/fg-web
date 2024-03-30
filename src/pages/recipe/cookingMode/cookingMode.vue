@@ -10,6 +10,7 @@
         </view>
       </view>
     </view>
+    <view style="height: 400rpx;"></view>
   </uni-popup>
 
 

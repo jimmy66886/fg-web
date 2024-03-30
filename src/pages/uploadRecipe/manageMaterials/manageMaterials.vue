@@ -3,7 +3,7 @@
     <view v-if="materials.length > 0" class="item" v-for="(item, index) in materials">
       <image src="http://47.109.139.173:9000/food.guide/132删除.png" @tap="deleteOne(index)" mode="scaleToFill" />
       <view>{{ item.name }}</view>
-      <view>{{ item.amount }}</view>
+      <view class="amount">{{ item.amount }}</view>
     </view>
     <view v-else>暂无数据</view>
   </view>
@@ -59,16 +59,21 @@ onLoad(() => {
   margin-bottom: 100rpx;
 }
 
+.item .amount{
+  position: absolute;
+  right: 20rpx;
+}
+
 .item {
   height: 100rpx;
   display: flex;
-  justify-content: space-between;
-  margin-right: 37.5rpx;
-  margin-left: 37.5rpx;
+  margin: 0 37.5rpx;
+  position: relative;
 }
 
 .item image {
   width: 50rpx;
   height: 50rpx;
+  margin-right: 150rpx;
 }
 </style>

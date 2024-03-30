@@ -122,6 +122,7 @@ import likes from '@/service/likes';
 import follow from '@/service/follow';
 import basket from '@/service/basket'
 import { onShow } from '@dcloudio/uni-app';
+import { onActivated } from 'vue';
 
 const { add } = commentAPI()
 const { get } = user()
@@ -466,12 +467,17 @@ function previewImage(stepNumber: number) {
   })
 }
 
-onShow(async () => {
-  console.log('重新获取菜谱信息')
+onShow(() => {
+  reGetRecipeInfo()
+})
+
+const reGetRecipeInfo = async () => {
+  console.log('重新获取菜谱信息:', recipe.value)
   // 这就要发请求了哎
   const res = await getByRecipeId(recipe.value.recipeId)
   recipe.value = res.data
-})
+  recipe.value.recipeStepList.sort((a: { stepNumber: number; }, b: { stepNumber: number; }) => a.stepNumber - b.stepNumber)
+}
 
 function getRecipe() {
   console.log('正在获取菜谱信息')

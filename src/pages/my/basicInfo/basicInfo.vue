@@ -61,7 +61,7 @@ function chooseAvatar() {
       const { tempFilePath } = res.tempFiles[0]
       // 文件上传
       uni.uploadFile({
-        url: 'http://localhost:8080/upload',
+        url: 'http://192.168.137.1:8080/upload',
         name: 'file',
         filePath: tempFilePath,
         success: (res) => {
