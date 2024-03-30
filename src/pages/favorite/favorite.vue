@@ -28,7 +28,8 @@
   <view v-if="activeIndex === '2'" class="favorites">
     <view @tap="getFavoritesInfo(item.favoritesId)" class="favoritesItem" v-for="item in favorites"
       :key="item.favoritesId">
-      <image :src="item.coverImg" mode="aspectFill" />
+      <image v-if="item.coverImg !== null" :src="item.coverImg" mode="aspectFill" />
+      <image v-else src="http://47.109.139.173:9000/food.guide/Snipaste_2024-03-30_13-16-32.png" mode="aspectFill" />
       <view>{{ item.name }}</view>
       <view>{{ item.number }}道菜谱</view>
     </view>
@@ -39,7 +40,7 @@
 import favorite from '@/service/favorite';
 import { onShow } from '@dcloudio/uni-app';
 import recipe from '@/service/recipe';
-import { ref } from 'vue';
+import { onActivated, ref } from 'vue';
 
 const { getByRecipeId } = recipe()
 const { getAllFavorites, getAllFavorite, getById } = favorite()
@@ -99,6 +100,13 @@ function getFavoritesInfo(favoritesId: number) {
 }
 
 onShow(() => {
+  getAllFavoritesData()
+  getAllFavoriteData()
+})
+
+// 页面激活的钩子
+onActivated(() => {
+  console.log('更新数据')
   getAllFavoritesData()
   getAllFavoriteData()
 })

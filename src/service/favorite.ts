@@ -111,5 +111,29 @@ export default function () {
         return res
     }
 
-    return { insertFavorites, addTo, deleteByRecipeId, getFavorited, getAllFavorites, getAllFavorite, getById, getFavoritesInfo }
+    /**
+     * 修改收藏夹
+     */
+    async function updateFavorites(favorites) {
+        const res = await http({
+            method: 'POST',
+            url: '/favorites/update',
+            data: favorites
+        })
+        return res
+    }
+
+    /**
+     * 批量删除菜谱收藏
+     */
+    async function deleteBatch(recipeIds: Array) {
+        const res = await http({
+            method: 'POST',
+            url: '/favorite/deleteBatch',
+            data: recipeIds
+        })
+        return res
+    }
+
+    return { deleteBatch, updateFavorites, insertFavorites, addTo, deleteByRecipeId, getFavorited, getAllFavorites, getAllFavorite, getById, getFavoritesInfo }
 }
