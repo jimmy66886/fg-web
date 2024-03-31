@@ -97,6 +97,10 @@ const toBasketPage = async () => {
  * @param fof 是关注还是粉丝
  */
 const toFollowOrFan = async (fof: string) => {
+  uni.showLoading({
+    title: '加载中',
+    mask: true
+  })
   const followRes = await getFollowList(-1)
   followList.value = followRes.data
   const fanRes = await getFans(-1)

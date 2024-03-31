@@ -25,6 +25,24 @@ let nickName = ref('')
 let userList = ref([])
 let showMessage = ref(false)
 
+function toUserInfo(authorId: number) {
+  uni.showLoading({
+    title: '加载中',
+    mask: true
+  })
+  setTimeout(() => {
+    uni.setStorage({
+      key: 'authorId',
+      data: authorId,
+      success: (result) => {
+        uni.navigateTo({ url: '/pages/userInfo/userInfo' })
+      },
+      fail: (error) => { }
+    })
+  }, 500);
+
+}
+
 function back() {
   uni.navigateBack({ delta: 1 })
 }
@@ -67,7 +85,7 @@ const search = async () => {
   userList.value = res.data
   if (userList.value.length === 0) {
     showMessage.value = true
-  }else{
+  } else {
     showMessage.value = false
   }
   uni.hideLoading()
@@ -76,8 +94,7 @@ const search = async () => {
 </script>
 
 <style scoped>
-
-.showMessage{
+.showMessage {
   margin-top: 100rpx;
   text-align: center;
   font-size: 35rpx;

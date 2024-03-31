@@ -84,6 +84,7 @@ onLoad(async () => {
     },
     fail: (error) => { }
   })
+  uni.hideLoading()
 })
 </script>
 

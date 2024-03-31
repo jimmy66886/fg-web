@@ -126,10 +126,10 @@ function init() {
       // 判断是否关注了对方
       const followRes = await getFollowed(data)
       isFollowed.value = followRes.data
-
     },
     fail: (error) => { }
   })
+  uni.hideLoading()
 }
 
 init()
