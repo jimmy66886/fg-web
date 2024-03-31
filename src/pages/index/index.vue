@@ -1,7 +1,7 @@
 <template>
   <scroll-view class="scroll-y" :scroll-top="scrollTop" scroll-y="true" @scrolltolower="loadMore">
     <view class="uploadRecipe">
-      <image src="http://47.109.139.173:9000/food.guide/加icon.png" mode="scaleToFill" @tap="uploadRecipe" />
+      <image src="http://47.109.139.173:9000/food.guide/跟多.png" mode="scaleToFill" @tap="showLeftDrawer" />
     </view>
 
     <!-- 轮播图 -->
@@ -59,6 +59,28 @@
         <!-- <view>{{ item.nickName }}</view> -->
       </view>
     </view>
+
+    <uni-drawer ref="showLeft" mode="left" :width="250">
+      <view class="drawerList">
+        <view @click="updateRecipe()" class="drawerItem">
+          <image src="http://47.109.139.173:9000/food.guide/加icon.png" mode="aspectFill" />
+          <view>上传菜谱</view>
+        </view>
+        <view @click="recognition()" class="drawerItem">
+          <image src="http://47.109.139.173:9000/food.guide/图片识别菜品识别.png" mode="aspectFill" />
+          <view>识别菜谱</view>
+        </view>
+        <view @click="toMessage()" class="drawerItem">
+          <image src="http://47.109.139.173:9000/food.guide/消息列表.png" mode="aspectFill" />
+          <view>消息列表</view>
+        </view>
+        <view @click="toSearchUser()" class="drawerItem">
+          <image src="http://47.109.139.173:9000/food.guide/发现好友.png" mode="aspectFill" />
+          <view>查询好友</view>
+        </view>
+      </view>
+    </uni-drawer>
+
   </scroll-view>
 </template>
 
@@ -69,6 +91,7 @@ import recipe from '@/service/recipe'
 import { onShow } from '@dcloudio/uni-app';
 import user from '@/service/user'
 
+let showLeft = ref()
 let wordStr = ref('')
 let loadText = ref('上拉加载更多')
 let pageSize = ref(10)
@@ -76,6 +99,14 @@ const { get } = user()
 const { getRecipeList, getByRecipeId, getOneWord } = recipe()
 
 const recipeList = ref([])
+
+function toMessage() {
+  uni.navigateTo({ url: '/pages/message/message' })
+}
+
+function toSearchUser() {
+  uni.navigateTo({ url: '/pages/searchUser/searchUser' })
+}
 
 const loadMore = async () => {
   loadText.value = '加载中'
@@ -89,71 +120,66 @@ const loadMore = async () => {
   }
 }
 
-function uploadRecipe() {
+const recognition = async () => {
+  // 先判断是否登录
+  const userRes = await get()
 
-  // 首页的加号可以加一个功能,就是扫一扫?或者就是识图
-  uni.showActionSheet({
-    itemList: ['上传菜谱', '识别菜品'],
-    success: async ({ tapIndex }) => {
-      if (tapIndex === 0) {
-        // 上传菜谱
-        uni.navigateTo({
-          url: '/pages/uploadRecipe/uploadRecipe'
-        })
-      }
-      if (tapIndex === 1) {
+  // 调用拍照/选择图片的api
+  uni.chooseMedia({
+    count: 1,
+    mediaType: ['image'],
+    success: (res) => {
+      console.log('加载中')
+      uni.showLoading({
+        title: '加载中',
+        mask: true
+      })
+      // 获取文件本地路径
+      const { tempFilePath } = res.tempFiles[0]
+      // 文件上传
+      uni.uploadFile({
+        url: 'http://192.168.168.1:8080/app/recipe/recognition',
+        name: 'img',
+        filePath: tempFilePath,
+        success: (res) => {
 
-        // 先判断是否登录
-        const userRes = await get()
-
-        // 调用拍照/选择图片的api
-        uni.chooseMedia({
-          count: 1,
-          mediaType: ['image'],
-          success: (res) => {
-            console.log('加载中')
-            uni.showLoading({
-              title: '加载中',
+          if (JSON.parse(res.data).code === 0) {
+            // 查询失败
+            uni.showToast({
+              title: JSON.parse(res.data).msg,
+              icon: 'error',
               mask: true
             })
-            // 获取文件本地路径
-            const { tempFilePath } = res.tempFiles[0]
-            // 文件上传
-            uni.uploadFile({
-              url: 'http://192.168.137.1:8080/app/recipe/recognition',
-              name: 'img',
-              filePath: tempFilePath,
-              success: (res) => {
-
-                if (JSON.parse(res.data).code === 0) {
-                  // 查询失败
-                  uni.showToast({
-                    title: JSON.parse(res.data).msg,
-                    icon: 'error',
-                    mask: true
-                  })
-                  uni.hideLoading()
-                  return
-                }
-
-                console.log('加载完毕')
-                uni.hideLoading()
-                uni.setStorage({
-                  key: 'recognitionResult',
-                  data: res.data,
-                  success: (result) => {
-                    uni.navigateTo({ url: '/pages/index/recognition/recognition' })
-                  },
-                  fail: (error) => { }
-                })
-              }
-            })
+            uni.hideLoading()
+            return
           }
-        })
-      }
-    },
-    fail: (error) => { }
+
+          console.log('加载完毕')
+          uni.hideLoading()
+          uni.setStorage({
+            key: 'recognitionResult',
+            data: res.data,
+            success: (result) => {
+              uni.navigateTo({ url: '/pages/index/recognition/recognition' })
+            },
+            fail: (error) => { }
+          })
+        }
+      })
+    }
   })
+}
+
+const updateRecipe = async () => {
+  // 上传菜谱
+  uni.navigateTo({
+    url: '/pages/uploadRecipe/uploadRecipe'
+  })
+}
+
+function showLeftDrawer() {
+  // 这个方法只用于展示左边的抽屉
+  showLeft.value.open()
 }
 
 function getCategoryInfo(categoryName: string) {
@@ -214,6 +240,25 @@ onShow(() => {
 </script>
 
 <style scoped>
+.drawerItem {
+  font-size: 40rpx;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  height: 100rpx;
+  margin-left: 70rpx;
+}
+
+.drawerItem image {
+  width: 60rpx;
+  height: 60rpx;
+  margin-right: 20rpx;
+}
+
+.drawerList {
+  margin-top: 100rpx;
+}
+
 .scroll-y {
   height: 100vh;
 }
@@ -232,8 +277,9 @@ onShow(() => {
 }
 
 .uploadRecipe image {
-  width: 70rpx;
-  height: 70rpx;
+  width: 60rpx;
+  height: 60rpx;
+  margin-bottom: 10rpx;
 }
 
 .categoryItem {
@@ -268,7 +314,6 @@ onShow(() => {
 
 .wrapImg {
   margin-right: 0rpx;
-  background-color: green;
   height: 360rpx;
   margin-bottom: 20rpx;
 }

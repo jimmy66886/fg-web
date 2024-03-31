@@ -42,5 +42,19 @@ export default function () {
         return res
     }
 
-    return { getById, updateUserInfo, get }
+    /**
+     * 搜索用户
+     */
+    async function searchByNickName(nickName: string) {
+        const res = await http({
+            method: 'POST',
+            url: '/user/search',
+            data: {
+                nickName
+            }
+        })
+        return res
+    }
+
+    return { searchByNickName, getById, updateUserInfo, get }
 }
