@@ -11,13 +11,10 @@
           <image src="http://47.109.139.173:9000/food.guide/早饭.jpg" mode="aspectFill" />
         </swiper-item>
         <swiper-item>
-          <image src="http://47.109.139.173:9000/food.guide/早饭.jpg" mode="aspectFill" />
+          <image src="http://47.109.139.173:9000/food.guide/DSC07300.jpg" mode="aspectFill" />
         </swiper-item>
         <swiper-item>
-          <image src="http://47.109.139.173:9000/food.guide/早饭.jpg" mode="aspectFill" />
-        </swiper-item>
-        <swiper-item>
-          <image src="http://47.109.139.173:9000/food.guide/早饭.jpg" mode="aspectFill" />
+          <image src="http://47.109.139.173:9000/food.guide/jiaozi.jpg" mode="aspectFill" />
         </swiper-item>
       </swiper>
     </view>
@@ -62,10 +59,7 @@
         <!-- <view>{{ item.nickName }}</view> -->
       </view>
     </view>
-    <view class="loadText">{{ loadText }}</view>
   </scroll-view>
-
-
 </template>
 
 <script setup lang="ts">
@@ -73,11 +67,12 @@
 import { ref, reactive } from 'vue'
 import recipe from '@/service/recipe'
 import { onShow } from '@dcloudio/uni-app';
+import user from '@/service/user'
 
 let wordStr = ref('')
 let loadText = ref('上拉加载更多')
 let pageSize = ref(10)
-
+const { get } = user()
 const { getRecipeList, getByRecipeId, getOneWord } = recipe()
 
 const recipeList = ref([])
@@ -97,10 +92,67 @@ const loadMore = async () => {
 function uploadRecipe() {
 
   // 首页的加号可以加一个功能,就是扫一扫?或者就是识图
+  uni.showActionSheet({
+    itemList: ['上传菜谱', '识别菜品'],
+    success: async ({ tapIndex }) => {
+      if (tapIndex === 0) {
+        // 上传菜谱
+        uni.navigateTo({
+          url: '/pages/uploadRecipe/uploadRecipe'
+        })
+      }
+      if (tapIndex === 1) {
 
+        // 先判断是否登录
+        const userRes = await get()
 
-  uni.navigateTo({
-    url: '/pages/uploadRecipe/uploadRecipe'
+        // 调用拍照/选择图片的api
+        uni.chooseMedia({
+          count: 1,
+          mediaType: ['image'],
+          success: (res) => {
+            console.log('加载中')
+            uni.showLoading({
+              title: '加载中',
+              mask: true
+            })
+            // 获取文件本地路径
+            const { tempFilePath } = res.tempFiles[0]
+            // 文件上传
+            uni.uploadFile({
+              url: 'http://192.168.137.1:8080/app/recipe/recognition',
+              name: 'img',
+              filePath: tempFilePath,
+              success: (res) => {
+
+                if (JSON.parse(res.data).code === 0) {
+                  // 查询失败
+                  uni.showToast({
+                    title: JSON.parse(res.data).msg,
+                    icon: 'error',
+                    mask: true
+                  })
+                  uni.hideLoading()
+                  return
+                }
+
+                console.log('加载完毕')
+                uni.hideLoading()
+                uni.setStorage({
+                  key: 'recognitionResult',
+                  data: res.data,
+                  success: (result) => {
+                    uni.navigateTo({ url: '/pages/index/recognition/recognition' })
+                  },
+                  fail: (error) => { }
+                })
+              }
+            })
+          }
+        })
+      }
+    },
+    fail: (error) => { }
   })
 }
 

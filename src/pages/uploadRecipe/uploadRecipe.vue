@@ -105,7 +105,7 @@ let isUpdate = ref(false)
 
 const { get } = user()
 
-function save(){
+function save() {
   popup.value.close()
 }
 
@@ -125,6 +125,7 @@ const addCategory = async () => {
 
 function addOneCategory() {
   recipe.value.categoryList.unshift(categoryItem.value)
+  categoryItem.value = ''
 }
 
 const uploadRecipe = async () => {
@@ -149,6 +150,11 @@ const uploadRecipe = async () => {
     return
   }
 
+  uni.showLoading({
+    title: '发布中',
+    mask: true
+  })
+
   recipe.value.materialsList = materials.value
   recipe.value.recipeStepList = recipeStep.value
 
@@ -158,6 +164,8 @@ const uploadRecipe = async () => {
     // 是普通上传,走上传的接口
     const res = await upload(recipe.value)
   }
+
+  uni.hideLoading()
 
   uni.showToast({
     title: '发布成功',
@@ -401,12 +409,11 @@ onShow(() => {
 </script>
 
 <style scoped>
-
 .finished {
   margin: 0 37.5rpx;
 }
 
-.categoryItem{
+.categoryItem {
   height: 70rpx;
   background-color: #e6e4e4;
   margin-right: 30rpx;
@@ -416,12 +423,12 @@ onShow(() => {
   border-radius: 15rpx;
 }
 
-.categoryList{
+.categoryList {
   margin-top: 40rpx;
   display: flex;
 }
 
-.categoryBox{
+.categoryBox {
   margin: 50rpx 37.5rpx;
 }
 

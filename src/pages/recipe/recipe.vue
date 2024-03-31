@@ -223,6 +223,7 @@ const getIsMe = async () => {
   } else {
     isMe.value = false
   }
+  uni.hideLoading()
 }
 
 getIsMe()
@@ -480,6 +481,10 @@ const reGetRecipeInfo = async () => {
 }
 
 function getRecipe() {
+  uni.showLoading({
+    title: '加载中',
+    mask: true
+  })
   console.log('正在获取菜谱信息')
   uni.getStorage({
     'key': 'recipe',

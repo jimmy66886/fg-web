@@ -101,6 +101,7 @@ const toFollowOrFan = async (fof: string) => {
   followList.value = followRes.data
   const fanRes = await getFans(-1)
   fans.value = fanRes.data
+  uni.hideLoading()
   if (fof === 'follow') {
     uni.setStorage({
       key: 'followList',
@@ -216,6 +217,10 @@ const getByUserIdData = async () => {
 }
 
 onShow(() => {
+  uni.showLoading({
+    title: '加载中',
+    mask: true
+  })
   // 每次进入这个页面都要请求一次后端,获取最新的用户数据
   updateInfo()
   getByUserIdData()
@@ -249,6 +254,10 @@ function wxLoing() {
     success: (res) => {
       if (res.confirm) {
         console.log("用户授权")
+        uni.showLoading({
+          title: '登陆中',
+          mask: true
+        })
         uni.login({
           "provider": "weixin",
           "onlyAuthorize": true, // 微信登录仅请求授权认证
@@ -279,6 +288,7 @@ function wxLoing() {
               bio: (res.data as userLoginVo).bio,
               createTime: (res.data as userLoginVo).createTime
             })
+            uni.hideLoading()
             uni.showToast({
               title: '登录成功',
               icon: 'success',

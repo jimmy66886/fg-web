@@ -69,6 +69,7 @@ const getAllFavoriteData = async () => {
   console.log('尝试获取所有收藏菜谱')
   const res = await getAllFavorite()
   favoriteList.value = res.records
+  uni.hideLoading()
 }
 
 function change(index) {
@@ -100,6 +101,10 @@ function getFavoritesInfo(favoritesId: number) {
 }
 
 onShow(() => {
+  uni.showLoading({
+    title: '加载中',
+    mask: true
+  })
   getAllFavoritesData()
   getAllFavoriteData()
 })

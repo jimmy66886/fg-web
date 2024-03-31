@@ -126,6 +126,12 @@
 			"style": {
 				"navigationBarTitleText": "菜篮子"
 			}
+		},
+		{
+			"path": "pages/index/recognition/recognition",
+			"style": {
+				"navigationBarTitleText": "识别结果"
+			}
 		}
 	],
 	"globalStyle": {
