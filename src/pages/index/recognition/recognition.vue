@@ -23,10 +23,27 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
+import recipe from '@/service/recipe';
+
+const { getByRecipeId } = recipe()
 let recognitionResult = ref({
   pageResult: {},
   title: ''
 })
+
+const toRecipeInfo = async (recipeId: number) => {
+  console.log(recipeId)
+  // 先根据recipeId获取到菜谱的详细信息，然后将该详细信息发送给recipe组件，再跳转
+  const res = await getByRecipeId(recipeId)
+  console.log('结果是：', res)
+  // 直接存入本地存储吧
+  uni.setStorage({
+    key: 'recipe',
+    data: JSON.stringify(res.data)
+  })
+  uni.navigateTo({ url: '/pages/recipe/recipe' })
+}
+
 
 onLoad(() => {
   // 获取本地存储中的缓存数据

@@ -71,5 +71,16 @@ export default function () {
         return res
     }
 
-    return { getFans, getFollowList, getFollowed, addFollow, deleteFollow }
+    /**
+     * 获取新粉丝-七天内关注的粉丝
+     */
+    async function getNewFans() {
+        const res = await http({
+            method: 'GET',
+            url: '/followers/getNewFans',
+        })
+        return res
+    }
+
+    return { getNewFans, getFans, getFollowList, getFollowed, addFollow, deleteFollow }
 }
