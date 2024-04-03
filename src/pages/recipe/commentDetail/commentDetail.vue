@@ -80,9 +80,11 @@ import { ref } from 'vue';
 import commentAPI from '@/service/comment';
 import emitter from '@/utils/emitter';
 import likes from '@/service/likes'
+import user from '@/service/user';
 
 const { addByCommentId, cancelCommentLike } = likes()
 const { deleteComment, getByTopComment, add } = commentAPI()
+const { get } = user()
 
 let topComment = ref()
 let commentList = ref([])
@@ -158,7 +160,10 @@ function commentIt(commentId: number, senderId: number) {
               let comment = {
                 recipeId: JSON.parse(data).recipeId,
                 rootId: commentId,
-                content: res.content
+                content: res.content,
+                // 添加回复的评论id，以及回复的用户id
+                toCommentId: topComment.value.commentId,
+                toUserId: topComment.value.userId
               }
               console.log('评论内容为：', comment)
               const result = await add(comment)
@@ -177,7 +182,9 @@ function commentIt(commentId: number, senderId: number) {
                 recipeId: JSON.parse(data).recipeId,
                 rootId: topComment.value.commentId,
                 content: res.content,
-                toId: senderId
+                // 添加回复的评论id，以及回复的用户id
+                toUserId: senderId,
+                toCommentId: commentId
               }
               console.log('评论内容为：', comment)
               const result = await add(comment)
@@ -214,36 +221,35 @@ function updateList() {
   })
 }
 
-function deleteThis(commentId: number, senderId: number) {
+
+// 错了错了,应该判断的是
+// 评论的发起id和当前用户id之间的关系
+const deleteThis = async (commentId: number, senderId: number) => {
   // 拿用户id和这条评论的用户id做对比,如果一样则可以进行删除
-  uni.getStorage({
-    key: 'recipe',
-    success: ({ data }) => {
-      if (JSON.parse(data).authorId === senderId) {
-        // 表示长按的人是长按评论的作者,则可以进行删除
-        uni.showModal({
-          title: '提示',
-          content: '确定删除?',
-          showCancel: true,
-          success: async ({ confirm, cancel }) => {
-            if (confirm) {
-              // 进行删除
-              const res = await deleteComment(commentId)
-              // 更新评论列表
-              // 评论列表是由菜谱页面获取后存入本地缓存,再有评论详情页面读取本地缓存得来的
-              // 所以只能根据顶级评论重新获取一遍二级评论
-              updateList()
+  const res = await get()
+  console.log('尝试删除评论')
+  if (res.data.userId === senderId) {
+    // 表示长按的人是长按评论的作者,则可以进行删除
+    uni.showModal({
+      title: '提示',
+      content: '确定删除?',
+      showCancel: true,
+      success: async ({ confirm, cancel }) => {
+        if (confirm) {
+          // 进行删除
+          const res = await deleteComment(commentId)
+          // 更新评论列表
+          // 评论列表是由菜谱页面获取后存入本地缓存,再有评论详情页面读取本地缓存得来的
+          // 所以只能根据顶级评论重新获取一遍二级评论
+          updateList()
 
 
-            } else {
-              console.log('取消删除')
-            }
-          }
-        })
+        } else {
+          console.log('取消删除')
+        }
       }
-    },
-    fail: (error) => { }
-  })
+    })
+  }
 }
 
 onLoad(() => {

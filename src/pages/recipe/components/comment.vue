@@ -26,7 +26,7 @@
                 </view>
             </view>
             <!-- 评论内容 -->
-            <view @longpress="deleteThis(item.commentId, item.senderId)" @tap="commentIt(item.commentId)"
+            <view @longpress="deleteThis(item.commentId, item.senderId)" @tap="commentIt(item.commentId, item.senderId)"
                 class="content">
                 {{
             item.content }}</view>
@@ -42,9 +42,11 @@ import emitter from '@/utils/emitter';
 import { onShow } from '@dcloudio/uni-app';
 import { defineProps, ref } from 'vue'
 import likes from '@/service/likes'
+import user from '@/service/user';
 
 const { getByRecipeId, getByTopComment, add, deleteComment } = comment()
 const { addByCommentId, cancelCommentLike } = likes()
+const { get } = user()
 
 let content = ref('')
 
@@ -89,39 +91,34 @@ const commentLikeCtrl = async (commentId: number, ctrl: Boolean) => {
     }
 }
 
-function deleteThis(commentId: number, senderId: number) {
+const deleteThis = async (commentId: number, senderId: number) => {
     // 拿用户id和这条评论的用户id做对比,如果一样则可以进行删除
-    uni.getStorage({
-        key: 'recipe',
-        success: ({ data }) => {
-            if (JSON.parse(data).authorId === senderId) {
-                // 表示长按的人是长按评论的作者,则可以进行删除
-                uni.showModal({
-                    title: '提示',
-                    content: '确定删除?',
-                    showCancel: true,
-                    success: async ({ confirm, cancel }) => {
-                        if (confirm) {
-                            // 进行删除
-                            const res = await deleteComment(commentId)
-                            // 更新评论列表
-                            getCommentData()
-                        } else {
-                            console.log('取消删除')
-                        }
-                    }
-                })
+    const res = await get()
+    if (res.data.userId === senderId) {
+        // 表示长按的人是长按评论的作者,则可以进行删除
+        uni.showModal({
+            title: '提示',
+            content: '确定删除?',
+            showCancel: true,
+            success: async ({ confirm, cancel }) => {
+                if (confirm) {
+                    // 进行删除
+                    const res = await deleteComment(commentId)
+                    // 更新评论列表
+                    getCommentData()
+                } else {
+                    console.log('取消删除')
+                }
             }
-        },
-        fail: (error) => { }
-    })
+        })
+    }
 }
 
 emitter.on('reload', (value: any) => {
     getCommentData()
 })
 
-function commentIt(commentId: number) {
+function commentIt(commentId: number, senderId: number) {
     uni.showModal({
         title: '评论',
         content: '',
@@ -133,7 +130,9 @@ function commentIt(commentId: number) {
                 let comment = {
                     recipeId,
                     rootId: commentId,
-                    content: res.content
+                    content: res.content,
+                    toUserId: senderId,
+                    toCommentId: commentId
                 }
                 console.log('评论内容为：', comment)
                 const result = await add(comment)
