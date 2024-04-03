@@ -71,5 +71,16 @@ export default function () {
         return res
     }
 
-    return { cancelCommentLike, addByCommentId, getLiked, addByRecipeId, cancelLike }
+    /**
+     * 查询收到的赞
+     */
+    async function getLikes() {
+        const res = await http({
+            method: 'GET',
+            url: '/likes/getLikes'
+        })
+        return res
+    }
+
+    return { getLikes, cancelCommentLike, addByCommentId, getLiked, addByRecipeId, cancelLike }
 }
