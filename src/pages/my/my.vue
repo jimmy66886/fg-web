@@ -59,7 +59,7 @@
 
 import { useUserStore } from '@/stores'
 import { http } from '@/utils/http'
-import { ref } from 'vue';
+import { onActivated, ref } from 'vue';
 import user from '@/service/user';
 import recipe from '@/service/recipe';
 import follow from '@/service/follow';
@@ -221,6 +221,17 @@ const getByUserIdData = async () => {
 }
 
 onShow(() => {
+
+  // 防止登录过期后加载不出登录界面
+  console.log('防止登录过期后加载不出登录界面')
+  uni.getStorage({
+    key: 'user',
+    success: ({ data }) => { },
+    fail: (error) => {
+      isLogin.value = false
+    }
+  })
+
   uni.showLoading({
     title: '加载中',
     mask: true
@@ -231,8 +242,11 @@ onShow(() => {
   // 获取数据,并不跳转
   toFollowOrFan('none')
   clearFF()
-})
 
+
+
+
+})
 function clearFF() {
   console.log('移除本地缓存')
   uni.removeStorage({

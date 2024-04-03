@@ -27,7 +27,8 @@
         <image @tap="toUserInfo(item.userId)" :src="item.avatarUrl" mode="aspectFill" />
         <view @tap="toUserInfo(item.userId)">
           <view>{{ item.nickName }}</view>
-          <view style="font-size: 25rpx; margin-top: 5rpx;">关注了你 <text style="color: grey;">{{ item.createTime }}</text></view>
+          <view style="font-size: 25rpx; margin-top: 5rpx;">关注了你 <text style="color: grey;">{{ item.createTime }}</text>
+          </view>
         </view>
         <view v-if="item.isFollowed" @tap="followCtrl(false, index)" class="followButton">已关注</view>
         <view v-else class="followButton" @tap="followCtrl(true, index)">关注</view>
@@ -42,11 +43,30 @@ import follow from '@/service/follow';
 import dateTools from '@/utils/dateTools'
 
 const { timeFormate } = dateTools()
-const { getNewFans } = follow()
+const { getNewFans, addFollow, deleteFollow } = follow()
 
 let newFans = ref([])
 
 let activeIndex = ref(1)
+
+const followCtrl = async (ctrl: Boolean, index: number) => {
+  if (ctrl) {
+    const res = await addFollow(newFans.value[index].userId)
+    newFans.value[index].isFollowed = true
+  } else {
+    uni.showModal({
+      title: '提示',
+      content: '确认取消关注?',
+      showCancel: true,
+      success: async ({ confirm, cancel }) => {
+        if (confirm) {
+          const res = await deleteFollow(newFans.value[index].userId)
+          newFans.value[index].isFollowed = false
+        }
+      }
+    })
+  }
+}
 
 function back() {
   uni.navigateBack({ delta: 1 })
