@@ -421,11 +421,13 @@ onShow(() => {
   padding: 0 20rpx;
   line-height: 70rpx;
   border-radius: 15rpx;
+  margin-bottom: 10rpx;
 }
 
 .categoryList {
   margin-top: 40rpx;
   display: flex;
+  flex-wrap: wrap;
 }
 
 .categoryBox {

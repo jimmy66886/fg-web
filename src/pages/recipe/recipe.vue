@@ -413,7 +413,21 @@ const showMore = async () => {
             key: 'updateRecipe',
             data: JSON.stringify(recipe.value),
             success: (result) => {
-              uni.navigateTo({ url: '/pages/uploadRecipe/uploadRecipe' })
+              // 在进入编辑界面前清除可能存在的缓存
+              // 这个可能存在，是指用户点击了更新，然后进入了调整用料/步骤的界面，然后这时就会将用料和步骤保存到本地存储中，但是如果用户没有点击发布，则缓存并不会被清除（清除缓存的逻辑写在发布后）
+              uni.removeStorage({
+                key: 'materials',
+                success: (result) => {
+                  uni.removeStorage({
+                    key: 'recipeStep',
+                    success: (result) => {
+                      uni.navigateTo({ url: '/pages/uploadRecipe/uploadRecipe' })
+                    },
+                    fail: (error) => { }
+                  })
+                },
+                fail: (error) => { }
+              })
             },
             fail: (error) => { }
           })

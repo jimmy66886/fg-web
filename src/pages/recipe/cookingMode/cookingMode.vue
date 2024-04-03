@@ -2,7 +2,10 @@
   <button @click="open" class="materialsButton">用料</button>
   <uni-popup ref="popup" background-color="#fff" type="bottom" border-radius="10px 10px 0 0">
     <view class="materialsBox">
-      <view style="font-size: 40rpx; margin-left: 37.5rpx; margin-top: 50rpx;">用料</view>
+      <view style="font-size: 40rpx; margin: 50rpx 37.5rpx; display: flex; justify-content: space-between;">
+        <view>用料</view>
+        <view @tap="popup.close()">收起</view>
+      </view>
       <view class="materialsList" v-for="item in materialsList" :key="item.materialsId">
         <view class="materialsItem">
           <text>{{ item.name }}</text>
@@ -10,7 +13,7 @@
         </view>
       </view>
     </view>
-    <view style="height: 400rpx;"></view>
+    <view style="height: 300rpx;"></view>
   </uni-popup>
 
 
