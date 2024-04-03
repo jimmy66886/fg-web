@@ -470,6 +470,20 @@ function previewImage(stepNumber: number) {
 
 onShow(() => {
   reGetRecipeInfo()
+
+  uni.getStorage({
+    key: 'turnCommentId',
+    success: ({ data }) => {
+      console.log('获取到了要滚动到的评论id', data)
+      uni.pageScrollTo({ selector: '#scrollFlag', duration: 300 })
+      uni.removeStorage({
+        key: 'turnCommentId',
+        success: (result) => { },
+        fail: (error) => { }
+      })
+    },
+    fail: (error) => { }
+  })
 })
 
 const reGetRecipeInfo = async () => {

@@ -39,7 +39,7 @@
 
 import comment from '@/service/comment';
 import emitter from '@/utils/emitter';
-import { onShow } from '@dcloudio/uni-app';
+import { onShow, onLoad } from '@dcloudio/uni-app';
 import { defineProps, ref } from 'vue'
 import likes from '@/service/likes'
 import user from '@/service/user';

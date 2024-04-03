@@ -71,7 +71,18 @@ export default function () {
         return res
     }
 
+    /**
+     * 查询新增评论
+     */
+    async function getNewComment() {
+        const res = await http({
+            method: 'GET',
+            url: '/comment/getNewComment'
+        })
+        return res
+    }
 
 
-    return { getByRecipeId, getByTopComment, add, deleteComment }
+
+    return { getNewComment, getByRecipeId, getByTopComment, add, deleteComment }
 }

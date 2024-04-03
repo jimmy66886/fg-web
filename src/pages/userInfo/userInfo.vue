@@ -58,7 +58,7 @@ import { ref } from 'vue'
 import follow from '@/service/follow';
 
 const { getById, get } = user()
-const { getByUserId } = recipe()
+const { getByRecipeId, getByUserId } = recipe()
 const { getFollowed, addFollow, deleteFollow, getFollowList, getFans } = follow()
 
 let userInfo = ref({
@@ -75,6 +75,18 @@ let fans = ref([])
 let isAuthor = ref(false)
 let isFollowed = ref(false)
 
+const toRecipeInfo = async (recipeId: number) => {
+  console.log(recipeId)
+  // 先根据recipeId获取到菜谱的详细信息，然后将该详细信息发送给recipe组件，再跳转
+  const res = await getByRecipeId(recipeId)
+  console.log('结果是：', res)
+  // 直接存入本地存储吧
+  uni.setStorage({
+    key: 'recipe',
+    data: JSON.stringify(res.data)
+  })
+  uni.navigateTo({ url: '/pages/recipe/recipe' })
+}
 
 const followCtrl = async (ctrl: boolean) => {
   if (ctrl) {
@@ -126,10 +138,10 @@ function init() {
       // 判断是否关注了对方
       const followRes = await getFollowed(data)
       isFollowed.value = followRes.data
+      uni.hideLoading()
     },
     fail: (error) => { }
   })
-  uni.hideLoading()
 }
 
 init()
