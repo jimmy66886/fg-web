@@ -135,5 +135,17 @@ export default function () {
         return res
     }
 
-    return { deleteBatch, updateFavorites, insertFavorites, addTo, deleteByRecipeId, getFavorited, getAllFavorites, getAllFavorite, getById, getFavoritesInfo }
+    /**
+     * 删除菜谱收藏夹
+     */
+    async function deleteByFavoritesId(favoritesId) {
+        const res = await http({
+            method: 'POST',
+            url: '/favorites/delete',
+            data: favoritesId
+        })
+        return res
+    }
+
+    return { deleteByFavoritesId, deleteBatch, updateFavorites, insertFavorites, addTo, deleteByRecipeId, getFavorited, getAllFavorites, getAllFavorite, getById, getFavoritesInfo }
 }

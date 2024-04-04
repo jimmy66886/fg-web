@@ -70,7 +70,11 @@
       <view>收藏描述</view>
       <input placeholder="请输入描述" type="text" v-model="updateFavoritesData.intro">
     </view>
-    <view style="width: 100%; margin-bottom: 600rpx;"></view>
+    <view class="deleteBox">
+      <view>管理</view>
+      <view @tap="deleteFavorite" class="deleteButton">删除这个收藏</view>
+    </view>
+    <view style="width: 100%; margin-bottom: 400rpx;"></view>
   </uni-popup>
 
 
@@ -85,7 +89,7 @@ import recipe from '@/service/recipe';
 import favorite from '@/service/favorite';
 import { ref } from 'vue';
 const { getByRecipeId } = recipe()
-const { getById, getFavoritesInfo, updateFavorites, deleteBatch } = favorite()
+const { deleteByFavoritesId, getById, getFavoritesInfo, updateFavorites, deleteBatch } = favorite()
 
 let recipeList = ref([])
 let favoritesInfo = ref()
@@ -100,6 +104,28 @@ let updateFavoritesData = ref({
 
 let selectedNumber = ref(0)
 let isSelectAll = ref(false)
+
+const deleteFavorite = async () => {
+  uni.showModal({
+    title: '提示',
+    content: '确定删除?',
+    showCancel: true,
+    success: async ({ confirm, cancel }) => {
+      if (confirm) {
+        const res = await deleteByFavoritesId(favoritesId.value)
+        uni.showToast({
+          title: '删除成功',
+          icon: 'success',
+          mask: true
+        })
+        popup.value.close()
+        // 重定向到自定义收藏夹界面
+        uni.switchTab({ url: '/pages/favorite/favorite' })
+      }
+    }
+  })
+
+}
 
 function selectAll(ctrl: boolean) {
 
@@ -241,6 +267,16 @@ const getFavoritesInfoData = async (favoritesId: number) => {
 </script>
 
 <style scoped>
+.deleteButton {
+  font-size: 40rpx;
+  color: black;
+}
+
+.deleteBox {
+  color: grey;
+  margin: 50rpx 37.5rpx;
+}
+
 .disabled {
   color: grey;
 }
