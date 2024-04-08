@@ -24,7 +24,7 @@ export default function () {
     async function getAllCategory() {
         const res = await http({
             method: 'GET',
-            url: '/category/getAllCategory',
+            url: '/sysCategory/getAllCategory',
 
         })
         return res
