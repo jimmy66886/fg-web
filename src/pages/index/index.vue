@@ -7,14 +7,8 @@
     <!-- 轮播图 -->
     <view class="wrapImg">
       <swiper indicator-dots indicator-color="gray" indicator-active-color="white" autoplay circular>
-        <swiper-item>
-          <image src="http://47.109.139.173:9000/food.guide/早饭.jpg" mode="aspectFill" />
-        </swiper-item>
-        <swiper-item>
-          <image src="http://47.109.139.173:9000/food.guide/DSC07300.jpg" mode="aspectFill" />
-        </swiper-item>
-        <swiper-item>
-          <image src="http://47.109.139.173:9000/food.guide/jiaozi.jpg" mode="aspectFill" />
+        <swiper-item v-for="item in carouselList">
+          <image :src="item" mode="aspectFill" />
         </swiper-item>
       </swiper>
     </view>
@@ -90,13 +84,17 @@ import { ref, reactive } from 'vue'
 import recipe from '@/service/recipe'
 import { onShow } from '@dcloudio/uni-app';
 import user from '@/service/user'
+import carousel from '@/service/carousel';
 
 let showLeft = ref()
 let wordStr = ref('')
 let loadText = ref('上拉加载更多')
 let pageSize = ref(10)
+let carouselList = ref()
+
 const { get } = user()
 const { getRecipeList, getByRecipeId, getOneWord } = recipe()
+const { getCarouselList } = carousel()
 
 const recipeList = ref([])
 
@@ -231,10 +229,17 @@ const toRecipeInfo = async (recipeId: number) => {
   uni.navigateTo({ url: '/pages/recipe/recipe' })
 }
 
+const getCarouselListData = async () => {
+  const res = await getCarouselList()
+  carouselList.value = res.data
+  console.log('轮播图结果：', carouselList.value)
+}
+
 onShow(() => {
   // 初始化数据
   getRecipeListData()
   getOneWordData()
+  getCarouselListData()
 })
 
 </script>
