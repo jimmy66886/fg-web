@@ -58,6 +58,23 @@ export const http = <T>(options: UniApp.RequestOptions) => {
               title: (res.data as Data<T>).msg,
               icon: 'none',
             })
+            console.log('检测到后端抛出异常：', res.data.msg)
+            if (res.data.msg === '您的账户已被封禁') {
+              // 单独的一种情况,账号被封了,此时要清除登录数据
+              const userStore = useUserStore()
+              userStore.clearProfile()
+              // 直接移除掉user本地缓存得了
+              uni.removeStorage({
+                key: 'user',
+                success: (result) => { },
+                fail: (error) => { }
+              })
+              uni.switchTab({ url: '/pages/my/my' })
+              uni.showToast({
+                title: '请登录后进行操作',
+                icon: 'none',
+              })
+            }
             reject(res)
           }
           // as... 断言类型为指定的类型
