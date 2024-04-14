@@ -18,6 +18,10 @@
         <image src="http://47.109.139.173:9000/food.guide/xizneng粉丝.png" mode="aspectFill" />
         <view :class="{ activeIndex: activeIndex === 3 }">新增粉丝</view>
       </view>
+      <view @tap="changeIndex(4)" class="item">
+        <image src="http://47.109.139.173:9000/food.guide/系统消息.png" mode="aspectFill" />
+        <view :class="{ activeIndex: activeIndex === 4 }">系统消息</view>
+      </view>
     </view>
     <!-- 下面显示的内容就是上面选择的东西，默认是赞与收藏，那么怎么判断用户选择的是哪一个呢? -->
     <view class="report" v-if="activeIndex === 1">
@@ -41,17 +45,19 @@
       <view class="commentItem" v-if="newComments.length" v-for="item in newComments" :key="item.commentId">
         <image @tap="toUserInfo(item.senderId)" :src="item.senderAvatarUrl" mode="aspectFill" />
         <view @tap="toCommentInfo(item.commentId, item.recipeId)" class="commentBasic">
-          <view style="font-size: 30rpx;"><text style="font-weight: bold;">{{ item.senderName }}</text> <text
-              style="color: #ccc;"> 回复了我的评论</text></view>
+          <view style="font-size: 30rpx;"><text style="font-weight: bold;">{{ item.senderName }}</text>
+            <text v-if="item.originalContent" style="color: #ccc;"> 回复了我的评论</text>
+            <text v-else style="color: #ccc;"> 回复了我的菜谱</text>
+          </view>
           <view>{{ cutCommentLength(item.content) }}</view>
           <view style="font-size: 25rpx; color: grey;">{{ item.sendDateTime }}</view>
         </view>
         <!-- 如果有原始评论，则显示原始评论 -->
         <view @tap="toCommentInfo(item.commentId, item.recipeId)" class="originalContent" v-if="item.originalContent">{{
-        truncateText(item.originalContent) }}</view>
+          truncateText(item.originalContent) }}</view>
         <!-- 如果没有，则显示菜谱标题 -->
         <view @tap="toCommentInfo(item.commentId, item.recipeId)" class="originalContent" v-else>{{
-        truncateText(item.title) }}</view>
+          truncateText(item.title) }}</view>
       </view>
       <view v-else>
         <view style="text-align: center">数据为空</view>
@@ -72,6 +78,16 @@
         <view style="text-align: center">数据为空</view>
       </view>
     </view>
+    <view class="report" v-if="activeIndex === 4">
+      <view class="messageBox" v-if="messageList.length">
+        <uni-card v-for="item in messageList" type="line" :extra="item.createTime" :title="item.title">
+          <text>{{ item.message }}</text>
+        </uni-card>
+      </view>
+      <view v-else style="text-align: center">
+        数据为空
+      </view>
+    </view>
   </view>
 </template>
 
@@ -83,16 +99,19 @@ import comment from '@/service/comment';
 import recipe from '@/service/recipe';
 import likes from '@/service/likes';
 import { onLoad } from '@dcloudio/uni-app';
+import message from '@/service/message';
 
 const { timeFormate } = dateTools()
 const { getNewFans, addFollow, deleteFollow } = follow()
 const { getNewComment } = comment()
 const { getByRecipeId } = recipe()
 const { getLikes } = likes()
+const { getMessage } = message()
 
 let newFans = ref([])
 let newComments = ref([])
 let newLikes = ref([])
+let messageList = ref([])
 
 let activeIndex = ref(1)
 
@@ -194,6 +213,12 @@ const changeIndex = async (index) => {
     title: '加载中',
     mask: true
   })
+  if (index === 4) {
+    // 展示系统消息
+    const res = await getMessage()
+    messageList.value = res.data
+    uni.hideLoading()
+  }
   if (index === 3) {
     // 展示新增粉丝
     const res = await getNewFans()
