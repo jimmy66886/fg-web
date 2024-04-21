@@ -1,7 +1,8 @@
 <template>
   <view v-if="recognitionResult">
     <view class="recognition">您是否要找:{{ recognitionResult.title }}</view>
-    <view class="result" v-for="item in recognitionResult.pageResult.records" :key="item.recipeId">
+    <view v-if="recognitionResult.pageResult.records.length > 0" class="result"
+      v-for="item in recognitionResult.pageResult.records" :key="item.recipeId">
       <view @tap="toRecipeInfo(item.recipeId)" class="recipeItem">
         <image :src="item.imageUrl" mode="aspectFill" />
         <view class="basicInfo">
@@ -16,6 +17,7 @@
         </view>
       </view>
     </view>
+    <view style="text-align: center;" v-else>暂无数据</view>
     <view class="bottom">-- 到底了 --</view>
   </view>
 </template>
