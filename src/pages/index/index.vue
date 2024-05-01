@@ -136,7 +136,7 @@ const recognition = async () => {
       const { tempFilePath } = res.tempFiles[0]
       // 文件上传
       uni.uploadFile({
-        url: 'http://192.168.168.1:8080/app/recipe/recognition',
+        url: 'http://localhost:8080/app/recipe/recognition',
         name: 'img',
         filePath: tempFilePath,
         success: (res) => {

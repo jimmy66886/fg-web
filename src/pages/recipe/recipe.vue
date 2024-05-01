@@ -101,8 +101,8 @@
     </view>
     <view class="createFavoritesBox">
       <view>收藏夹标题</view>
-      <textarea maxlength="10" v-model="addFavoritesObj.name" style="height: 200rpx; width:100%"
-        placeholder="必填 · 10字以内"></textarea>
+      <textarea v-model="addFavoritesObj.name" style="height: 200rpx; width:100%"
+        placeholder="必填"></textarea>
       <view>描述</view>
       <textarea maxlength="100" v-model="addFavoritesObj.intro" class="descr" placeholder="选填 · 100字以内"></textarea>
     </view>
