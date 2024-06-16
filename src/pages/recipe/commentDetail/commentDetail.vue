@@ -64,10 +64,10 @@
       <!-- 评论内容这个地方涉及到是否是回复二级评论,如果是回复二级评论,则一定有toId,就根据这个item是否存在toId,来限定评论内容的显示方式 -->
       <view v-if="!item.receiverId" @tap="commentIt(item.commentId, item.senderId)" class="content"
         @longpress="deleteThis(item.commentId, item.senderId)">{{
-    item.content }}
+          item.content }}
       </view>
       <view v-else class="content" @tap="commentIt(item.commentId, item.senderId)" @longpress=" deleteThis(item.commentId,
-    item.senderId)">回复 <text style="color: grey;">{{ item.receiverName }}</text> :
+        item.senderId)">回复 <text style="color: grey;">{{ item.receiverName }}</text> :
         {{ item.content }}</view>
     </view>
   </view>
@@ -148,7 +148,14 @@ function commentIt(commentId: number, senderId: number) {
     cancelText: '取消',
     success: async (res) => {
       if (res.confirm) {
-
+        if (res.content === '') {
+          uni.showToast({
+            title: '请输入评论内容',
+            icon: 'error',
+            mask: true
+          })
+          return
+        }
 
         // 先判断是回复给顶级评论还是二级评论
         if (topComment.value.commentId === commentId) {
@@ -157,6 +164,7 @@ function commentIt(commentId: number, senderId: number) {
           uni.getStorage({
             key: 'recipe',
             success: async ({ data }) => {
+
               let comment = {
                 recipeId: JSON.parse(data).recipeId,
                 rootId: commentId,

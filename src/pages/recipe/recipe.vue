@@ -374,6 +374,14 @@ function commentIt() {
     cancelText: '取消',
     success: async (res) => {
       if (res.confirm) {
+        if(res.content===''){
+          uni.showToast({
+            title: '请输入评论内容',
+            icon: 'error',
+            mask: true
+          })
+          return
+        }
         let comment = {
           recipeId: recipe.value.recipeId,
           content: res.content

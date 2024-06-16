@@ -29,7 +29,7 @@
             <view @longpress="deleteThis(item.commentId, item.senderId)" @tap="commentIt(item.commentId, item.senderId)"
                 class="content">
                 {{
-            item.content }}</view>
+                    item.content }}</view>
             <view v-if="item.expand" @tap="expand(index)" style="margin-left: 80rpx; color: skyblue;">展开</view>
         </view>
     </view>
@@ -127,6 +127,14 @@ function commentIt(commentId: number, senderId: number) {
         cancelText: '取消',
         success: async (res) => {
             if (res.confirm) {
+                if (res.content === '') {
+                    uni.showToast({
+                        title: '请输入评论内容',
+                        icon: 'error',
+                        mask: true
+                    })
+                    return
+                }
                 let comment = {
                     recipeId,
                     rootId: commentId,

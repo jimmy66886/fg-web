@@ -18,7 +18,7 @@
         <image src="http://47.109.139.173:9000/food.guide/searchfg.png" mode="scaleToFill" />
         今天想做点什么?
       </view>
-      <view class="oneWord">{{ wordStr }}</view>
+      <!-- <view class="oneWord">{{ wordStr }}</view> -->
     </view>
 
     <!-- 快捷分类 -->
